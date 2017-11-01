@@ -13,6 +13,8 @@ import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -25,8 +27,7 @@ import org.jaudiotagger.tag.FieldKey;
 import org.jaudiotagger.tag.Tag;
 
 import java.io.File;
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -36,17 +37,14 @@ import java.util.concurrent.Executors;
  */
 public class Main extends Application {
     private ListView<MP3Info> listView;
-
-
     private Executor executor = Executors.newSingleThreadExecutor();
-
     public ObservableList<MP3Info> list = FXCollections.observableArrayList();
 
     public static void main(String[] args) {
         launch(args);
     }
 
-
+    private boolean isSelectAll = true;
     private static final double WIDTH = 1000d;
     private static final double HIGTH = 700d;
     private Stage primaryStage;
@@ -82,8 +80,6 @@ public class Main extends Application {
                 System.exit(0);
             }
         });
-
-
         Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler());
     }
 
@@ -109,6 +105,22 @@ public class Main extends Application {
         MenuItem clearItem = new MenuItem("清除");
         clearItem.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent event) {
+                List<MP3Info> rList = new ArrayList<MP3Info>();
+                for (int i = 0; i < list.size(); i++) {
+                    MP3Info mp3Info = list.get(i);
+                    if (mp3Info.isChecked) {
+                        rList.add(mp3Info);
+                    }
+                }
+                for (MP3Info info : rList) {
+                    list.remove(info);
+                }
+            }
+        });
+
+        MenuItem clearAllItem = new MenuItem("清空");
+        clearAllItem.setOnAction(new EventHandler<ActionEvent>() {
+            public void handle(ActionEvent event) {
                 list.clear();
             }
         });
@@ -120,7 +132,7 @@ public class Main extends Application {
             }
         });
 
-        fileMenu.getItems().addAll(openItem, clearItem, exitItem);
+        fileMenu.getItems().addAll(openItem, clearItem, clearAllItem, exitItem);
 
 
         Menu editMenu = new Menu("编辑");
@@ -170,7 +182,7 @@ public class Main extends Application {
             }
         });
 
-        helpMenu.getItems().addAll(useInfoItem,aboutItem);
+        helpMenu.getItems().addAll(useInfoItem, aboutItem);
 
         menuBar.getMenus().addAll(fileMenu, editMenu, helpMenu);
         borderPane.setTop(menuBar);
@@ -359,18 +371,30 @@ public class Main extends Application {
 
             }
         });
+        listView.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            public void handle(MouseEvent event) {
+                if (event.getButton() == MouseButton.PRIMARY) {
+                    if (event.getClickCount() == 2) {
+                        MP3Info selectedItem = listView.getSelectionModel().getSelectedItem();
+
+                        MusicPlayer.getInstans().play(selectedItem.mp3File);
+                    }
+
+                }
+            }
+        });
         VBox.setVgrow(listView, Priority.ALWAYS);
         rootView.getChildren().addAll(getHeadTitle(), listView);
 
     }
 
-    private boolean isSelectAll = false;
 
     private HBox getHeadTitle() {
         HBox itemView = new HBox(10);
         itemView.setAlignment(Pos.CENTER_LEFT);
         itemView.setPadding(new Insets(0, 9, 0, 9));
         CheckBox cb = new CheckBox();
+        cb.setSelected(isSelectAll);
         cb.selectedProperty().addListener(new ChangeListener<Boolean>() {
             public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
                 isSelectAll = newValue;
@@ -387,6 +411,9 @@ public class Main extends Application {
 
         Label name = new Label("文件名称");
         name.setPrefWidth(200);
+        Label index = new Label("#");
+        index.setPrefWidth(25);
+
         Label title = new Label("标题");
         title.setPrefWidth(160);
         Label artist = new Label("歌手");
@@ -400,7 +427,7 @@ public class Main extends Application {
         Separator s3 = new Separator(Orientation.VERTICAL);
         Separator s4 = new Separator(Orientation.VERTICAL);
         Separator s5 = new Separator(Orientation.VERTICAL);
-        itemView.getChildren().addAll(cb, name, s2, title, s3, artist, s4, album, s5, time);
+        itemView.getChildren().addAll(cb, index, name, s2, title, s3, artist, s4, album, s5, time);
 
         return itemView;
     }

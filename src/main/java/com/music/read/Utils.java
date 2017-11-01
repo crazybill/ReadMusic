@@ -28,5 +28,23 @@ public class Utils {
     }
 
 
+    public static String getMusicTime(int time) {
+
+        String format = "%1$s:%2$s";
+
+        if (time < 60) {
+            return String.format(format, "00", time);
+        } else {
+            int m = time / 60;
+            int s = time % 60;
+
+            String mm = m < 10 ? ("0" + m) : String.valueOf(m);
+            String ss = s < 10 ? ("0" + s) : String.valueOf(s);
+            return String.format(format, mm, ss);
+        }
+
+
+    }
+
 
 }

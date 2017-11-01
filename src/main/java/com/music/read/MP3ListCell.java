@@ -28,6 +28,8 @@ public class MP3ListCell extends ListCell<MP3Info> {
 
     public HBox getItemView(final MP3Info info) {
 
+
+
         HBox itemView = new HBox(10);
         itemView.setAlignment(Pos.CENTER_LEFT);
 
@@ -39,6 +41,9 @@ public class MP3ListCell extends ListCell<MP3Info> {
             }
         });
 
+
+        Label index = new Label(getIndex()+"");
+        index.setPrefWidth(25);
 
         Label name = new Label(info.fileName);
         name.setWrapText(true);
@@ -53,7 +58,7 @@ public class MP3ListCell extends ListCell<MP3Info> {
         Label album = new Label(info.album);
         album.setWrapText(true);
         album.setPrefWidth(180);
-        Label time = new Label(info.time + "");
+        Label time = new Label(Utils.getMusicTime(info.time));
         time.setWrapText(true);
         time.setPrefWidth(50);
 
@@ -62,7 +67,7 @@ public class MP3ListCell extends ListCell<MP3Info> {
         Separator s3 = new Separator(Orientation.VERTICAL);
         Separator s4 = new Separator(Orientation.VERTICAL);
 
-        itemView.getChildren().addAll(cb,name, s1, title, s2, artist, s3, album, s4, time);
+        itemView.getChildren().addAll(cb,index, name, s1, title, s2, artist, s3, album, s4, time);
 
         return itemView;
 
