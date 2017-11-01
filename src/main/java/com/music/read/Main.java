@@ -58,71 +58,42 @@ public class Main extends Application {
     private TextField deleteAfterText;
     private TextField text1;
     private TextField text2;
+    private BorderPane borderPane;
+
+    private boolean isShowErrorCodeSettingView = false;
+    private boolean isShowReplaceSettingView = false;
+    private boolean isShowAddSettingView = false;
 
     public void start(Stage primaryStage) throws Exception {
         this.primaryStage = primaryStage;
         primaryStage.setTitle("MP3信息助手");
-        rootView = new VBox();
-        rootView.setPadding(new Insets(10, 10, 10, 10));
-        rootView.setSpacing(10);
-        rootView.setAlignment(Pos.TOP_CENTER);
-        rootView.setBackground(Background.EMPTY);
-        Scene scene = new Scene(rootView, WIDTH, HIGTH);
+
+        borderPane = new BorderPane();
+        Scene scene = new Scene(borderPane, WIDTH, HIGTH);
         primaryStage.setScene(scene);
         primaryStage.show();
+
+        initMenuBar();
         initView();
+        borderPane.setCenter(rootView);
+
         primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
             public void handle(WindowEvent event) {
                 System.exit(0);
             }
         });
 
+
         Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler());
     }
 
 
-    class ExceptionHandler implements Thread.UncaughtExceptionHandler {
-        public void uncaughtException(Thread t, Throwable e) {
-
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setHeaderText("程序异常！");
-            alert.setContentText(e.toString());
-
-            StringWriter sw = new StringWriter();
-            PrintWriter pw = new PrintWriter(sw);
-            e.printStackTrace(pw);
-            String exceptionText = sw.toString();
-            Label label = new Label("The exception stacktrace was:");
-
-            TextArea textArea = new TextArea(exceptionText);
-            textArea.setEditable(false);
-            textArea.setWrapText(true);
-
-            textArea.setMaxWidth(Double.MAX_VALUE);
-            textArea.setMaxHeight(Double.MAX_VALUE);
-            GridPane.setVgrow(textArea, Priority.ALWAYS);
-            GridPane.setHgrow(textArea, Priority.ALWAYS);
-
-            GridPane expContent = new GridPane();
-            expContent.setMaxWidth(Double.MAX_VALUE);
-            expContent.add(label, 0, 0);
-            expContent.add(textArea, 0, 1);
-            alert.getDialogPane().setExpandableContent(expContent);
-
-            e.printStackTrace();
-            alert.showAndWait();
-            //System.exit(0);
-        }
-    }
-
-    private void initView() {
-        HBox headView = new HBox(5);
-        headView.setAlignment(Pos.CENTER_LEFT);
-
-        Button btn_selecte = new Button("加载mp3");
-        btn_selecte.setOnAction(new EventHandler<ActionEvent>() {
+    private void initMenuBar() {
+        MenuBar menuBar = new MenuBar();
+        Menu fileMenu = new Menu("文件");
+        MenuItem openItem = new MenuItem("打开");
+        openItem.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent event) {
-
                 FileChooser chooser = new FileChooser();
                 chooser.getExtensionFilters().addAll(
                         new FileChooser.ExtensionFilter("All Images", "*.*"),
@@ -134,11 +105,83 @@ public class Main extends Application {
                 }
             }
         });
-        Separator separatorH = new Separator(Orientation.HORIZONTAL);
 
-        Separator separator = new Separator(Orientation.VERTICAL);
+        MenuItem clearItem = new MenuItem("清除");
+        clearItem.setOnAction(new EventHandler<ActionEvent>() {
+            public void handle(ActionEvent event) {
+                list.clear();
+            }
+        });
 
-        Label splitLabel = new Label("分隔线:");
+        MenuItem exitItem = new MenuItem("退出");
+        exitItem.setOnAction(new EventHandler<ActionEvent>() {
+            public void handle(ActionEvent event) {
+                Platform.exit();
+            }
+        });
+
+        fileMenu.getItems().addAll(openItem, clearItem, exitItem);
+
+
+        Menu editMenu = new Menu("编辑");
+
+        CheckMenuItem codeErrorItem = new CheckMenuItem("乱码分析");
+        codeErrorItem.setSelected(isShowErrorCodeSettingView);
+        codeErrorItem.selectedProperty().addListener(new ChangeListener<Boolean>() {
+            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                isShowErrorCodeSettingView = newValue;
+                checkSettingView();
+            }
+        });
+
+
+        CheckMenuItem replaceNameItem = new CheckMenuItem("批量替换名称字符");
+        replaceNameItem.setSelected(isShowReplaceSettingView);
+        replaceNameItem.selectedProperty().addListener(new ChangeListener<Boolean>() {
+            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                isShowReplaceSettingView = newValue;
+                checkSettingView();
+            }
+        });
+
+        CheckMenuItem addNameItem = new CheckMenuItem("批量添加名称字符");
+        addNameItem.setSelected(isShowAddSettingView);
+        addNameItem.selectedProperty().addListener(new ChangeListener<Boolean>() {
+            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                isShowAddSettingView = newValue;
+                checkSettingView();
+
+            }
+        });
+
+
+        editMenu.getItems().addAll(codeErrorItem, replaceNameItem, addNameItem);
+
+
+        Menu helpMenu = new Menu("帮助");
+        MenuItem useInfoItem = new MenuItem("使用说明");
+        useInfoItem.setOnAction(new EventHandler<ActionEvent>() {
+            public void handle(ActionEvent event) {
+            }
+        });
+        MenuItem aboutItem = new MenuItem("关于");
+        aboutItem.setOnAction(new EventHandler<ActionEvent>() {
+            public void handle(ActionEvent event) {
+            }
+        });
+
+        helpMenu.getItems().addAll(useInfoItem,aboutItem);
+
+        menuBar.getMenus().addAll(fileMenu, editMenu, helpMenu);
+        borderPane.setTop(menuBar);
+    }
+
+
+    private HBox getErrorCodeSetting() {
+
+        HBox mHBox = new HBox(5);
+        mHBox.setAlignment(Pos.CENTER_LEFT);
+        Label splitLabel = new Label("文件分隔线:");
 
         splitText = new TextField(DEFULT_PRE);
         splitText.setAlignment(Pos.CENTER);
@@ -161,8 +204,17 @@ public class Main extends Application {
             }
         });
 
-        Separator separatorH3 = new Separator(Orientation.VERTICAL);
+        mHBox.getChildren().addAll(splitLabel, splitText,
+                headBox, btn_ana);
 
+        return mHBox;
+    }
+
+
+    private HBox getReplaceSetting() {
+
+        HBox mHBox = new HBox(5);
+        mHBox.setAlignment(Pos.CENTER_LEFT);
         Label petchDeletLabel = new Label("批量改文件名:");
 
         deleteBeforText = new TextField();
@@ -180,8 +232,17 @@ public class Main extends Application {
             }
         });
 
-        Separator separatorH2 = new Separator(Orientation.VERTICAL);
 
+        mHBox.getChildren().addAll(petchDeletLabel, deleteBeforText,
+                deleteAfterText, btn_delete);
+
+        return mHBox;
+    }
+
+
+    private HBox getAddSetting() {
+        HBox mHBox = new HBox(5);
+        mHBox.setAlignment(Pos.CENTER_LEFT);
         Label label1 = new Label("在第");
         text1 = new TextField();
         text1.setPrefWidth(30);
@@ -196,17 +257,93 @@ public class Main extends Application {
             }
         });
 
-        Separator separatorH1 = new Separator(Orientation.VERTICAL);
+        mHBox.getChildren().addAll(label1, text1,
+                label2, text2, btn_add);
 
-        Button btn_clear = new Button("清除");
-        btn_clear.setOnAction(new EventHandler<ActionEvent>() {
-            public void handle(ActionEvent event) {
-                list.clear();
-            }
-        });
+        return mHBox;
+    }
 
-        headView.getChildren().addAll(btn_selecte, separator, splitLabel, splitText,
-                headBox, btn_ana, separatorH3, petchDeletLabel, deleteBeforText, deleteAfterText, btn_delete, separatorH2, label1, text1, label2, text2, btn_add, separatorH1, btn_clear);
+    private Separator getVSeparator() {
+        return new Separator(Orientation.VERTICAL);
+    }
+
+    private Separator getHSeparator() {
+        return new Separator(Orientation.HORIZONTAL);
+    }
+
+
+    private HBox errorCodeSetting, replaceSetting, addSetting;
+    private Separator vSeparator, vSeparator1, hSeparator;
+    private HBox headSettingView;
+
+    private void initSettingView() {
+        headSettingView = new HBox(5);
+        headSettingView.setAlignment(Pos.CENTER_LEFT);
+
+        errorCodeSetting = getErrorCodeSetting();
+        replaceSetting = getReplaceSetting();
+        addSetting = getAddSetting();
+
+        vSeparator = getVSeparator();
+        vSeparator1 = getVSeparator();
+        hSeparator = getHSeparator();
+
+        headSettingView.getChildren().addAll(errorCodeSetting, vSeparator, replaceSetting, vSeparator1, addSetting);
+        rootView.getChildren().addAll(headSettingView, hSeparator);
+        checkSettingView();
+    }
+
+    private void checkSettingView() {
+
+        errorCodeSetting.setVisible(isShowErrorCodeSettingView);
+        errorCodeSetting.setManaged(isShowErrorCodeSettingView);
+
+        replaceSetting.setVisible(isShowReplaceSettingView);
+        replaceSetting.setManaged(isShowReplaceSettingView);
+
+        addSetting.setVisible(isShowAddSettingView);
+        addSetting.setManaged(isShowAddSettingView);
+
+        if ((isShowErrorCodeSettingView && isShowReplaceSettingView) || (isShowErrorCodeSettingView && isShowAddSettingView)) {
+            vSeparator.setVisible(true);
+            vSeparator.setManaged(true);
+        } else {
+            vSeparator.setVisible(false);
+            vSeparator.setManaged(false);
+        }
+
+        if (isShowReplaceSettingView && isShowAddSettingView) {
+            vSeparator1.setVisible(true);
+            vSeparator1.setManaged(true);
+        } else {
+            vSeparator1.setVisible(false);
+            vSeparator1.setManaged(false);
+        }
+
+        if (isShowErrorCodeSettingView || isShowReplaceSettingView || isShowAddSettingView) {
+            headSettingView.setVisible(true);
+            headSettingView.setManaged(true);
+            hSeparator.setVisible(true);
+            hSeparator.setManaged(true);
+        } else {
+            headSettingView.setVisible(false);
+            headSettingView.setManaged(false);
+            hSeparator.setVisible(false);
+            hSeparator.setManaged(false);
+        }
+
+    }
+
+
+    private void initView() {
+
+        rootView = new VBox();
+        rootView.setPadding(new Insets(10, 10, 10, 10));
+        rootView.setSpacing(10);
+        rootView.setAlignment(Pos.TOP_CENTER);
+        rootView.setBackground(Background.EMPTY);
+
+        initSettingView();
 
         listView = new ListView<MP3Info>();
         listView.setItems(list);
@@ -223,7 +360,7 @@ public class Main extends Application {
             }
         });
         VBox.setVgrow(listView, Priority.ALWAYS);
-        rootView.getChildren().addAll(headView, separatorH, getHeadTitle(), listView);
+        rootView.getChildren().addAll(getHeadTitle(), listView);
 
     }
 
