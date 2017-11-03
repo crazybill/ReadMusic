@@ -50,6 +50,7 @@ public class HomeView {
     private MenuBar menuBar;
 
     private MusicParser musicParser;
+    private PlayManager playManager;
 
     public HomeView(Stage primaryStage) {
         this.primaryStage = primaryStage;
@@ -58,6 +59,7 @@ public class HomeView {
 
     public void init() {
         musicParser = new MusicParser(this);
+        playManager = new PlayManager(this);
         primaryStage.setTitle("MP3信息助手");
         borderPane = new BorderPane();
         Scene scene = new Scene(borderPane, WIDTH, HIGTH);
@@ -407,18 +409,14 @@ public class HomeView {
                 if (event.getButton() == MouseButton.PRIMARY) {
                     if (event.getClickCount() == 2) {
                         MP3Info selectedItem = listView.getSelectionModel().getSelectedItem();
-
-                        MusicPlayer.getInstans().play(selectedItem.mp3File);
+                        playManager.play(selectedItem);
                     }
-
                 }
             }
         });
         VBox.setVgrow(listView, Priority.ALWAYS);
         rootView.getChildren().addAll(getHeadTitle(), listView);
-
     }
-
 
     private HBox getHeadTitle() {
         HBox itemView = new HBox(10);

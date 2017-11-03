@@ -18,5 +18,6 @@ public class MP3Info {
     public File mp3File;
     public boolean isChecked;
 
+    public boolean isPlaying;
 
 }

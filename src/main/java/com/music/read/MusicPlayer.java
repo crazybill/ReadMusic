@@ -15,7 +15,6 @@ public class MusicPlayer {
     private static MusicPlayer mMusicPlayer;
 
     private MusicPlayer() {
-
     }
 
     public static MusicPlayer getInstans() {
@@ -28,8 +27,10 @@ public class MusicPlayer {
 
     private SourceDataLine line;
 
-    public void play(final File file) {
-        closePlay();
+    public void play(final File file, final PlayStateListener listener) {
+        if (isPlaying()) {
+            closePlay();
+        }
         executor.execute(new Runnable() {
             public void run() {
                 try {
@@ -37,6 +38,23 @@ public class MusicPlayer {
                     AudioFormat outFormat = getOutFormat(in.getFormat());
                     DataLine.Info info = new DataLine.Info(SourceDataLine.class, outFormat);
                     line = (SourceDataLine) AudioSystem.getLine(info);
+                    line.addLineListener(new LineListener() {
+                        public void update(LineEvent event) {
+                            if (listener != null) {
+                                LineEvent.Type type = event.getType();
+                                if (LineEvent.Type.OPEN == type) {
+                                    listener.onOpen();
+                                } else if (LineEvent.Type.CLOSE == type) {
+                                    listener.onClose();
+                                } else if (LineEvent.Type.START == type) {
+                                    listener.onStart();
+                                } else if (LineEvent.Type.STOP == type) {
+                                    listener.onStop();
+                                }
+                            }
+                        }
+                    });
+
 
                     if (line != null) {
                         line.open(outFormat);
@@ -44,8 +62,7 @@ public class MusicPlayer {
                         stream(AudioSystem.getAudioInputStream(outFormat, in), line);
                         line.drain();
                         line.stop();
-
-
+                        line.close();
                     }
 
                 } catch (Exception e) {
@@ -58,10 +75,12 @@ public class MusicPlayer {
     public void startPlay() {
         if (line != null) {
             line.start();
-
         }
     }
 
+    public boolean isPlaying() {
+        return line != null && line.isOpen() && line.isRunning();
+    }
 
     public void closePlay() {
         if (line != null) {
@@ -74,7 +93,6 @@ public class MusicPlayer {
             line.stop();
         }
     }
-
 
     private AudioFormat getOutFormat(AudioFormat inFormat) {
         int ch = inFormat.getChannels();

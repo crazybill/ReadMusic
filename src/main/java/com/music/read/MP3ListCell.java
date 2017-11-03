@@ -9,6 +9,8 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.Separator;
 import javafx.scene.layout.HBox;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 
 /**
  * Created by xupanpan on 09/08/2017.
@@ -28,8 +30,6 @@ public class MP3ListCell extends ListCell<MP3Info> {
 
     public HBox getItemView(final MP3Info info) {
 
-
-
         HBox itemView = new HBox(10);
         itemView.setAlignment(Pos.CENTER_LEFT);
 
@@ -42,7 +42,7 @@ public class MP3ListCell extends ListCell<MP3Info> {
         });
 
 
-        Label index = new Label(getIndex()+"");
+        Label index = new Label(String.valueOf(getIndex() + 1));
         index.setPrefWidth(25);
 
         Label name = new Label(info.fileName);
@@ -67,9 +67,35 @@ public class MP3ListCell extends ListCell<MP3Info> {
         Separator s3 = new Separator(Orientation.VERTICAL);
         Separator s4 = new Separator(Orientation.VERTICAL);
 
-        itemView.getChildren().addAll(cb,index, name, s1, title, s2, artist, s3, album, s4, time);
+        itemView.getChildren().addAll(cb, index, name, s1, title, s2, artist, s3, album, s4, time);
+
+        if (info.isPlaying) {
+            setColorPlaying(index);
+            setColorPlaying(name);
+            setColorPlaying(title);
+            setColorPlaying(artist);
+            setColorPlaying(album);
+            setColorPlaying(time);
+        } else {
+            setColorDef(index);
+            setColorDef(name);
+            setColorDef(title);
+            setColorDef(artist);
+            setColorDef(album);
+            setColorDef(time);
+        }
 
         return itemView;
 
     }
+
+    private void setColorPlaying(Label label) {
+        label.setTextFill(Color.LIGHTSKYBLUE);
+    }
+
+    private void setColorDef(Label label) {
+        label.setTextFill(Color.BLACK);
+    }
+
+
 }
