@@ -13,8 +13,21 @@ public class PlayManager {
     private boolean isUserPlay;
 
 
+    private PlayScheduleListener listener = new PlayScheduleListener() {
+        public void onPlaying(final int position) {
+            System.out.println(position);
+            Platform.runLater(new Runnable() {
+                public void run() {
+                    homeView.playTimeLabel.setText(Utils.getMusicTime(position));
+                }
+            });
+        }
+    };
+
+
     public PlayManager(HomeView view) {
         this.homeView = view;
+        MusicPlayer.getInstans().setPlayScheduleListener(listener);
     }
 
 
@@ -73,7 +86,11 @@ public class PlayManager {
                 }
             }
         });
+
     }
+
+
+
 
 
     private void updateUIShow(){

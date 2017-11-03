@@ -51,16 +51,16 @@ public class MP3ListCell extends ListCell<MP3Info> {
 
         Label title = new Label(info.title);
         title.setWrapText(true);
-        title.setPrefWidth(160);
+        title.setPrefWidth(140);
         Label artist = new Label(info.artist);
         artist.setWrapText(true);
         artist.setPrefWidth(80);
         Label album = new Label(info.album);
         album.setWrapText(true);
-        album.setPrefWidth(180);
+        album.setPrefWidth(160);
         Label time = new Label(Utils.getMusicTime(info.time));
         time.setWrapText(true);
-        time.setPrefWidth(50);
+        time.setPrefWidth(40);
 
         Separator s1 = new Separator(Orientation.VERTICAL);
         Separator s2 = new Separator(Orientation.VERTICAL);

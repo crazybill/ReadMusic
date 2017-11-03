@@ -3,6 +3,8 @@ package com.music.read;
 import javax.sound.sampled.*;
 import java.io.File;
 import java.io.IOException;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -13,8 +15,17 @@ public class MusicPlayer {
 
     private Executor executor = Executors.newSingleThreadExecutor();
     private static MusicPlayer mMusicPlayer;
+    private PlayScheduleListener playScheduleListener;
 
     private MusicPlayer() {
+    }
+
+    public PlayScheduleListener getPlayScheduleListener() {
+        return playScheduleListener;
+    }
+
+    public void setPlayScheduleListener(PlayScheduleListener playScheduleListener) {
+        this.playScheduleListener = playScheduleListener;
     }
 
     public static MusicPlayer getInstans() {
@@ -45,10 +56,14 @@ public class MusicPlayer {
                                 if (LineEvent.Type.OPEN == type) {
                                     listener.onOpen();
                                 } else if (LineEvent.Type.CLOSE == type) {
+                                    stopTime();
                                     listener.onClose();
                                 } else if (LineEvent.Type.START == type) {
+                                    isPlaying = true;
+                                    startTime();
                                     listener.onStart();
                                 } else if (LineEvent.Type.STOP == type) {
+                                    isPlaying = false;
                                     listener.onStop();
                                 }
                             }
@@ -63,6 +78,7 @@ public class MusicPlayer {
                         line.drain();
                         line.stop();
                         line.close();
+                        in.close();
                     }
 
                 } catch (Exception e) {
@@ -102,10 +118,35 @@ public class MusicPlayer {
 
     private void stream(AudioInputStream in, SourceDataLine line)
             throws IOException {
-        byte[] buffer = new byte[65536];
+        byte[] buffer = new byte[2048];
         for (int n = 0; n != -1; n = in.read(buffer, 0, buffer.length)) {
             line.write(buffer, 0, n);
         }
+    }
+
+    private Timer timer;
+    private int timePosition = 0;
+    private boolean isPlaying;
+
+    private void startTime() {
+        timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                if (isPlaying) {
+                    timePosition++;
+                    if (playScheduleListener != null) {
+                        playScheduleListener.onPlaying(timePosition);
+                    }
+                }
+            }
+        }, 1000, 1000);
+    }
+
+
+    private void stopTime() {
+        timer.cancel();
+        timePosition = 0;
     }
 
 

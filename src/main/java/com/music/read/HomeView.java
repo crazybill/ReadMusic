@@ -12,14 +12,18 @@ import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -433,7 +437,6 @@ public class HomeView {
                     }
                     listView.setItems(null);
                     listView.setItems(list);
-
                 }
             }
         });
@@ -444,23 +447,48 @@ public class HomeView {
         index.setPrefWidth(25);
 
         Label title = new Label("标题");
-        title.setPrefWidth(160);
+        title.setPrefWidth(140);
         Label artist = new Label("歌手");
         artist.setPrefWidth(80);
         Label album = new Label("专辑名称");
-        album.setPrefWidth(180);
+        album.setPrefWidth(160);
         Label time = new Label("时长");
-        time.setPrefWidth(50);
+        time.setPrefWidth(40);
 
         Separator s2 = new Separator(Orientation.VERTICAL);
         Separator s3 = new Separator(Orientation.VERTICAL);
         Separator s4 = new Separator(Orientation.VERTICAL);
         Separator s5 = new Separator(Orientation.VERTICAL);
         itemView.getChildren().addAll(cb, index, name, s2, title, s3, artist, s4, album, s5, time);
-
+        initPlayControlView(itemView);
         return itemView;
     }
 
+    public Label playTimeLabel;
+
+    private void initPlayControlView(HBox itemView) {
+        Separator s6 = new Separator(Orientation.VERTICAL);
+        playTimeLabel = new Label();
+        playTimeLabel.setTextFill(Color.LIGHTSKYBLUE);
+        Image im = null;
+        try {
+            InputStream resourceAsStream = HomeView.class.getClass().getResourceAsStream("/res/ic_live_play.png");
+            im = new Image(resourceAsStream);
+        } catch (Exception e) {
+
+        }
+        Button stop = new Button("", new ImageView(im));
+        stop.setBackground(null);
+
+        stop.setOnAction(new EventHandler<ActionEvent>() {
+            public void handle(ActionEvent event) {
+
+                System.out.println("heheh");
+            }
+        });
+
+        itemView.getChildren().addAll(s6, playTimeLabel, stop);
+    }
 
 
     private void addStrList() {
