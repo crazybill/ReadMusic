@@ -25,7 +25,7 @@ public class Main extends Application {
         enableTray(primaryStage);
         primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
             public void handle(WindowEvent event) {
-                primaryStage.hide();
+                System.exit(0);
             }
         });
 
