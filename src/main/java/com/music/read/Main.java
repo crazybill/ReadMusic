@@ -71,7 +71,7 @@ public class Main extends Application {
         popupMenu.add(quitItem);
         try {
             SystemTray tray = SystemTray.getSystemTray();
-            BufferedImage image = ImageIO.read(getClass()
+            BufferedImage image = ImageIO.read(Main.class.getClass()
                     .getResourceAsStream("/res/icon.png"));
             trayIcon = new TrayIcon(image, "Music助手", popupMenu);
             trayIcon.setToolTip("Music助手");

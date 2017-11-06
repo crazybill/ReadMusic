@@ -93,54 +93,63 @@ public class MusicParser {
     public void executList() {
 
         for (MP3Info mp3Info : main.list) {
-            if (mp3Info.isChecked) {
-                String fileName = mp3Info.fileName.replaceAll(".mp3", "");
-                String title = mp3Info.title;
-                String artist = mp3Info.artist;
+            executList(mp3Info, false);
+        }
 
-                String text = main.splitText.getText();
-                if (text == null || text.length() == 0) {
-                    text = main.DEFULT_PRE;
-                }
-                String[] split = fileName.split(text);
+        main.listView.setItems(null);
+        main.listView.setItems(main.list);
 
-                String fileTile;
-                String fileArtist;
+    }
 
-                if (split.length == 1) {
-                    fileTile = fileName;
-                    fileArtist = "";
-                } else {
-                    fileTile = split[1];
-                    fileArtist = split[0];
-                }
 
-                if (title == null || title.equals("")) {
+    public void executList(MP3Info mp3Info, boolean update) {
+
+        if (mp3Info.isChecked) {
+            String fileName = mp3Info.fileName.replaceAll(".mp3", "");
+            String title = mp3Info.title;
+            String artist = mp3Info.artist;
+
+            String text = main.splitText.getText();
+            if (text == null || text.length() == 0) {
+                text = main.DEFULT_PRE;
+            }
+            String[] split = fileName.split(text);
+
+            String fileTile;
+            String fileArtist;
+
+            if (split.length == 1) {
+                fileTile = fileName;
+                fileArtist = "";
+            } else {
+                fileTile = split[1];
+                fileArtist = split[0];
+            }
+
+            if (title == null || title.equals("")) {
+                mp3Info.title = fileTile;
+                mp3Info.artist = fileArtist;
+                mp3Info.album = "";
+                mp3Info.genre = "";
+
+                fixMP3Info(mp3Info);
+
+            } else {
+                if (!fileName.contains(title)) {//是乱码
                     mp3Info.title = fileTile;
                     mp3Info.artist = fileArtist;
                     mp3Info.album = "";
                     mp3Info.genre = "";
 
                     fixMP3Info(mp3Info);
-
-                } else {
-                    if (!fileName.contains(title)) {//是乱码
-                        mp3Info.title = fileTile;
-                        mp3Info.artist = fileArtist;
-                        mp3Info.album = "";
-                        mp3Info.genre = "";
-
-                        fixMP3Info(mp3Info);
-                    }
                 }
-
-
             }
         }
 
-        main.listView.setItems(null);
-        main.listView.setItems(main.list);
-
+        if (update) {
+            main.listView.setItems(null);
+            main.listView.setItems(main.list);
+        }
     }
 
 

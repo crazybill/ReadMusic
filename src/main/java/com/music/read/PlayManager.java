@@ -9,8 +9,8 @@ public class PlayManager {
     private HomeView homeView;
     public int currentPosition = -1;
 
-    private MP3Info mp3Info;
-    private boolean isUserPlay;
+    public MP3Info mp3Info;
+    private boolean isUserControl;
 
 
     private PlayScheduleListener listener = new PlayScheduleListener() {
@@ -41,13 +41,14 @@ public class PlayManager {
         if (info == null || !info.mp3File.exists()) {
             return;
         }
+        updateCurrentPosition();
         mp3Info = info;
         currentPosition = homeView.list.indexOf(info);
-        isUserPlay = true;
+        isUserControl = true;
         playMusic();
     }
 
-    private void playNextAuto() {
+    public void playNextAuto() {
 
         int size = homeView.list.size();
 
@@ -65,11 +66,19 @@ public class PlayManager {
         }
     }
 
+    public void updateCurrentPosition() {
+
+        if (mp3Info == null) {
+            return;
+        }
+        currentPosition = homeView.list.indexOf(mp3Info);
+
+    }
 
     public void stopAndStart() {
 
         if (MusicPlayer.getInstans().isPlaying()) {
-            isUserPlay = true;
+            isUserControl = true;
             MusicPlayer.getInstans().closePlay();
 
         } else {
@@ -80,6 +89,10 @@ public class PlayManager {
 
     private void playMusic() {
 
+        if (mp3Info == null) {
+            return;
+        }
+
         MusicPlayer.getInstans().play(mp3Info.mp3File, new PlayStateListener() {
 
             public void onOpen() {
@@ -87,7 +100,7 @@ public class PlayManager {
             }
 
             public void onStart() {
-                isUserPlay = false;
+                isUserControl = false;
                 Platform.runLater(new Runnable() {
                     public void run() {
                         homeView.setButtonStop();
@@ -106,11 +119,18 @@ public class PlayManager {
             }
 
             public void onClose() {
-                if (!isUserPlay) {
+                if (!isUserControl) {
                     playNextAuto();
                 }
             }
         });
+
+    }
+
+
+    public void closePlay(){
+        isUserControl = true;
+        MusicPlayer.getInstans().closePlay();
 
     }
 

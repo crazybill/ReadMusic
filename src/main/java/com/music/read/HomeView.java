@@ -54,9 +54,9 @@ public class HomeView {
     private boolean isShowAddSettingView = false;
     private MenuBar menuBar;
 
-    private MusicParser musicParser;
-    private PlayManager playManager;
-    private FileNameEditer fileNameEditer;
+    public MusicParser musicParser;
+    public PlayManager playManager;
+    public FileNameEditer fileNameEditer;
 
     public HomeView(Stage primaryStage) {
         this.primaryStage = primaryStage;
@@ -135,8 +135,14 @@ public class HomeView {
                         rList.add(mp3Info);
                     }
                 }
-                for (MP3Info info : rList) {
-                    list.remove(info);
+                if (rList.size() > 0) {
+                    for (MP3Info info : rList) {
+                        if (info == playManager.mp3Info) {
+                            playManager.closePlay();
+                        }
+                        list.remove(info);
+                    }
+                    playManager.updateCurrentPosition();
                 }
             }
         });
@@ -145,6 +151,8 @@ public class HomeView {
         clearAllItem.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent event) {
                 list.clear();
+                playManager.currentPosition = -1;
+                playManager.closePlay();
             }
         });
 
@@ -218,6 +226,11 @@ public class HomeView {
     private void initPlayerView() {
 
         Menu playMenu = new Menu("play");
+        playMenu.setOnAction(new EventHandler<ActionEvent>() {
+            public void handle(ActionEvent event) {
+                onPlayClick();
+            }
+        });
         menuBar.getMenus().addAll(playMenu);
 
     }
@@ -403,7 +416,7 @@ public class HomeView {
         listView.setOrientation(Orientation.VERTICAL);
         listView.setCellFactory(new Callback<ListView<MP3Info>, ListCell<MP3Info>>() {
             public ListCell<MP3Info> call(ListView<MP3Info> param) {
-                return new MP3ListCell();
+                return new MP3ListCell(HomeView.this);
             }
         });
         listView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<MP3Info>() {
@@ -476,6 +489,16 @@ public class HomeView {
         playTimeLabel = new Label();
         playTimeLabel.setPrefWidth(45);
         playTimeLabel.setTextFill(Color.LIGHTSKYBLUE);
+        playTimeLabel.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                if (event.getButton() == MouseButton.PRIMARY) {
+                    if (event.getClickCount() == 2 && playManager.currentPosition > -1 && playManager.currentPosition < list.size()) {
+                        listView.scrollTo(playManager.currentPosition);
+                    }
+                }
+            }
+        });
 
         playStop = new Button();
         setButtonPlay();

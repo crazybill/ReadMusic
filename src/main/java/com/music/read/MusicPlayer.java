@@ -57,7 +57,11 @@ public class MusicPlayer {
                                     listener.onOpen();
                                 } else if (LineEvent.Type.CLOSE == type) {
                                     stopTime();
+                                    if (playScheduleListener != null) {
+                                        playScheduleListener.onPlaying(0);
+                                    }
                                     listener.onClose();
+
                                 } else if (LineEvent.Type.START == type) {
                                     isPlaying = true;
                                     startTime();
