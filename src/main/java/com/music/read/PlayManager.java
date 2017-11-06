@@ -61,11 +61,12 @@ public class PlayManager {
                 mp3Info = homeView.list.get(currentPosition);
             }
             playMusic();
+            homeView.listView.scrollTo(currentPosition);
         }
     }
 
 
-    public void stopAndStart(){
+    public void stopAndStart() {
 
         if (MusicPlayer.getInstans().isPlaying()) {
             isUserPlay = true;
@@ -90,6 +91,7 @@ public class PlayManager {
                 Platform.runLater(new Runnable() {
                     public void run() {
                         homeView.setButtonStop();
+                        homeView.setCurrentPlayTitle((currentPosition + 1) + " # " + mp3Info.fileName + "   " + mp3Info.mp3File.getPath());
                     }
                 });
             }

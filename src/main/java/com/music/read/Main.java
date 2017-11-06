@@ -23,11 +23,7 @@ public class Main extends Application {
 
     public void start(final Stage primaryStage) throws Exception {
         enableTray(primaryStage);
-        primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
-            public void handle(WindowEvent event) {
-                System.exit(0);
-            }
-        });
+
 
         HomeView homeView = new HomeView(primaryStage);
         homeView.init();

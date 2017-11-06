@@ -20,6 +20,7 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import javafx.util.Callback;
 
 import java.io.File;
@@ -59,6 +60,12 @@ public class HomeView {
 
     public HomeView(Stage primaryStage) {
         this.primaryStage = primaryStage;
+        primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+            public void handle(WindowEvent event) {
+                PlayListManager.savePlayList(list);
+                System.exit(0);
+            }
+        });
     }
 
 
@@ -66,7 +73,7 @@ public class HomeView {
         musicParser = new MusicParser(this);
         playManager = new PlayManager(this);
         fileNameEditer = new FileNameEditer(this);
-        primaryStage.setTitle("MP3信息助手");
+        setCurrentPlayTitle("MP3信息助手");
         borderPane = new BorderPane();
         Scene scene = new Scene(borderPane, WIDTH, HIGTH);
         primaryStage.setScene(scene);
@@ -75,8 +82,27 @@ public class HomeView {
         initMenuBar();
         initView();
         borderPane.setCenter(rootView);
+
+        initData();
     }
 
+    private void initData() {
+        List<MP3Info> historyPlayList = PlayListManager.getHistoryPlayList();
+        if (historyPlayList != null) {
+            list.addAll(historyPlayList);
+            for (int i = 0; i < historyPlayList.size(); i++) {
+                MP3Info mp3Info = historyPlayList.get(i);
+                if (mp3Info.isPlaying) {
+                    playManager.currentPosition = i;
+                    break;
+                }
+            }
+        }
+    }
+
+    public void setCurrentPlayTitle(String title) {
+        primaryStage.setTitle(title);
+    }
 
     private void initMenuBar() {
 
@@ -252,7 +278,7 @@ public class HomeView {
                 String textBefor = deleteBeforText.getText();
                 String textAfter = deleteAfterText.getText();
 
-                fileNameEditer.renameList(textBefor,textAfter);
+                fileNameEditer.renameList(textBefor, textAfter);
             }
         });
 
@@ -279,7 +305,7 @@ public class HomeView {
             public void handle(ActionEvent event) {
                 String textWei = text1.getText();
                 String textStr = text2.getText();
-                fileNameEditer.addStrList(textWei,textStr);
+                fileNameEditer.addStrList(textWei, textStr);
             }
         });
 
@@ -395,6 +421,7 @@ public class HomeView {
                 }
             }
         });
+
         VBox.setVgrow(listView, Priority.ALWAYS);
         rootView.getChildren().addAll(getHeadTitle(), listView);
     }
@@ -469,6 +496,7 @@ public class HomeView {
             playStop.setGraphic(startImage);
         }
     }
+
     public void setButtonStop() {
         ImageView stopImage = getStopImage();
         if (stopImage != null) {
@@ -514,7 +542,6 @@ public class HomeView {
             playManager.stopAndStart();
         }
     }
-
 
 
 }
