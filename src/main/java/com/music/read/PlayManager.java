@@ -7,7 +7,7 @@ import javafx.application.Platform;
  */
 public class PlayManager {
     private HomeView homeView;
-    private int currentPosition;
+    public int currentPosition = -1;
 
     private MP3Info mp3Info;
     private boolean isUserPlay;
@@ -15,7 +15,6 @@ public class PlayManager {
 
     private PlayScheduleListener listener = new PlayScheduleListener() {
         public void onPlaying(final int position) {
-            System.out.println(position);
             Platform.runLater(new Runnable() {
                 public void run() {
                     homeView.playTimeLabel.setText(Utils.getMusicTime(position));
@@ -30,6 +29,13 @@ public class PlayManager {
         MusicPlayer.getInstans().setPlayScheduleListener(listener);
     }
 
+    public void play(int position) {
+        if (position < 0 || position >= homeView.list.size()) {
+            return;
+        }
+        play(homeView.list.get(position));
+    }
+
 
     public void play(MP3Info info) {
         if (info == null || !info.mp3File.exists()) {
@@ -42,8 +48,6 @@ public class PlayManager {
     }
 
     private void playNextAuto() {
-
-        System.out.println("自动波下一收");
 
         int size = homeView.list.size();
 
@@ -61,26 +65,45 @@ public class PlayManager {
     }
 
 
+    public void stopAndStart(){
+
+        if (MusicPlayer.getInstans().isPlaying()) {
+            isUserPlay = true;
+            MusicPlayer.getInstans().closePlay();
+
+        } else {
+            play(currentPosition);
+            homeView.setButtonPlay();
+        }
+    }
+
     private void playMusic() {
 
         MusicPlayer.getInstans().play(mp3Info.mp3File, new PlayStateListener() {
 
             public void onOpen() {
                 updateUIShow();
-                System.out.println("打开了");
             }
 
             public void onStart() {
                 isUserPlay = false;
-                System.out.println("开始播了");
+                Platform.runLater(new Runnable() {
+                    public void run() {
+                        homeView.setButtonStop();
+                    }
+                });
             }
 
             public void onStop() {
-                System.out.println("播停止了");
+
+                Platform.runLater(new Runnable() {
+                    public void run() {
+                        homeView.setButtonPlay();
+                    }
+                });
             }
 
             public void onClose() {
-                System.out.println("播完了");
                 if (!isUserPlay) {
                     playNextAuto();
                 }
@@ -90,14 +113,11 @@ public class PlayManager {
     }
 
 
-
-
-
-    private void updateUIShow(){
+    private void updateUIShow() {
         Platform.runLater(new Runnable() {
             public void run() {
-                for (MP3Info info:homeView.list){
-                    info.isPlaying =false;
+                for (MP3Info info : homeView.list) {
+                    info.isPlaying = false;
                 }
                 mp3Info.isPlaying = true;
                 homeView.listView.setItems(null);

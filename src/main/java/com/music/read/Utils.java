@@ -28,12 +28,12 @@ public class Utils {
     }
 
 
+    private static final String format = "%1$s:%2$s";
+
     public static String getMusicTime(int time) {
 
-        String format = "%1$s:%2$s";
-
         if (time < 60) {
-            return String.format(format, "00", time);
+            return String.format(format, "00", (time > 9 ? time : ("0" + time)));
         } else {
             int m = time / 60;
             int s = time % 60;

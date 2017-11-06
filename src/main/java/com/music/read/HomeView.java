@@ -55,6 +55,7 @@ public class HomeView {
 
     private MusicParser musicParser;
     private PlayManager playManager;
+    private FileNameEditer fileNameEditer;
 
     public HomeView(Stage primaryStage) {
         this.primaryStage = primaryStage;
@@ -64,6 +65,7 @@ public class HomeView {
     public void init() {
         musicParser = new MusicParser(this);
         playManager = new PlayManager(this);
+        fileNameEditer = new FileNameEditer(this);
         primaryStage.setTitle("MP3信息助手");
         borderPane = new BorderPane();
         Scene scene = new Scene(borderPane, WIDTH, HIGTH);
@@ -73,40 +75,11 @@ public class HomeView {
         initMenuBar();
         initView();
         borderPane.setCenter(rootView);
-        // initBottom();
     }
 
-
-    private void initBottom() {
-
-        HBox box = new HBox(5);
-
-        Button b1 = new Button("播放");
-        Button b2 = new Button("暂停");
-        Button b3 = new Button("停止");
-
-        b1.setOnAction(new EventHandler<ActionEvent>() {
-            public void handle(ActionEvent event) {
-                MusicPlayer.getInstans().startPlay();
-            }
-        });
-        b2.setOnAction(new EventHandler<ActionEvent>() {
-            public void handle(ActionEvent event) {
-                MusicPlayer.getInstans().stopPlay();
-            }
-        });
-        b3.setOnAction(new EventHandler<ActionEvent>() {
-            public void handle(ActionEvent event) {
-                MusicPlayer.getInstans().closePlay();
-            }
-        });
-
-        box.getChildren().addAll(b1, b2, b3);
-
-        borderPane.setBottom(box);
-    }
 
     private void initMenuBar() {
+
         menuBar = new MenuBar();
         menuBar.setUseSystemMenuBar(true);
         Menu fileMenu = new Menu("文件");
@@ -219,8 +192,6 @@ public class HomeView {
     private void initPlayerView() {
 
         Menu playMenu = new Menu("play");
-
-
         menuBar.getMenus().addAll(playMenu);
 
     }
@@ -277,7 +248,11 @@ public class HomeView {
         Button btn_delete = new Button("开始更改");
         btn_delete.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent event) {
-                renameList();
+
+                String textBefor = deleteBeforText.getText();
+                String textAfter = deleteAfterText.getText();
+
+                fileNameEditer.renameList(textBefor,textAfter);
             }
         });
 
@@ -302,7 +277,9 @@ public class HomeView {
         Button btn_add = new Button("开始添加");
         btn_add.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent event) {
-                addStrList();
+                String textWei = text1.getText();
+                String textStr = text2.getText();
+                fileNameEditer.addStrList(textWei,textStr);
             }
         });
 
@@ -465,109 +442,79 @@ public class HomeView {
     }
 
     public Label playTimeLabel;
+    public Button playStop;
 
     private void initPlayControlView(HBox itemView) {
         Separator s6 = new Separator(Orientation.VERTICAL);
         playTimeLabel = new Label();
+        playTimeLabel.setPrefWidth(45);
         playTimeLabel.setTextFill(Color.LIGHTSKYBLUE);
-        Image im = null;
-        try {
-            InputStream resourceAsStream = HomeView.class.getClass().getResourceAsStream("/res/ic_live_play.png");
-            im = new Image(resourceAsStream);
-        } catch (Exception e) {
 
-        }
-        Button stop = new Button("", new ImageView(im));
-        stop.setBackground(null);
-
-        stop.setOnAction(new EventHandler<ActionEvent>() {
+        playStop = new Button();
+        setButtonPlay();
+        playStop.setBackground(null);
+        playStop.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent event) {
-
-                System.out.println("heheh");
+                onPlayClick();
             }
         });
 
-        itemView.getChildren().addAll(s6, playTimeLabel, stop);
+        itemView.getChildren().addAll(s6, playStop, playTimeLabel);
     }
 
 
-    private void addStrList() {
-
-        String textWei = text1.getText();
-        String textStr = text2.getText();
-        if (textWei == null || textWei.length() == 0 || textStr == null || textStr.length() == 0) {
-            return;
+    public void setButtonPlay() {
+        ImageView startImage = getStartImage();
+        if (startImage != null) {
+            playStop.setGraphic(startImage);
         }
-
-        int wei = 1;
-        try {
-            wei = Integer.parseInt(textWei);
-            if (wei < 1) {
-                wei = 1;
-            }
-        } catch (Exception e) {
-            wei = 1;
+    }
+    public void setButtonStop() {
+        ImageView stopImage = getStopImage();
+        if (stopImage != null) {
+            playStop.setGraphic(stopImage);
         }
-
-        for (MP3Info mp3Info : list) {
-            if (mp3Info.isChecked) {
-                String fileName = mp3Info.fileName;
-                if (wei == 1) {
-                    fileName = textStr + fileName;
-                } else if (wei > fileName.length()) {
-                    fileName = fileName + textStr;
-                } else {
-                    String substring = fileName.substring(0, wei - 1);
-                    String substring2 = fileName.substring(wei - 1, fileName.length());
-                    fileName = substring + textStr + substring2;
-                }
-
-                mp3Info.fileName = fileName;
-
-                File newNameFile = new File(mp3Info.mp3File.getParent(), fileName);
-                if (!newNameFile.exists()) {
-                    mp3Info.mp3File.renameTo(newNameFile);
-                    mp3Info.mp3File = newNameFile;
-                }
-
-
-            }
-        }
-        listView.setItems(null);
-        listView.setItems(list);
-
     }
 
-    private void renameList() {
+    private ImageView imageView = null;
 
-        String textBefor = deleteBeforText.getText();
-        if (textBefor == null || textBefor.length() == 0) {
-            return;
-        }
-        String textAfter = deleteAfterText.getText();
-        if (textAfter == null) {
-            textAfter = "";
-        }
-
-        for (MP3Info mp3Info : list) {
-            if (mp3Info.isChecked) {
-                String fileName = mp3Info.fileName;
-                if (fileName.contains(textBefor)) {
-
-                    String replace = fileName.replace(textBefor, textAfter);
-                    mp3Info.fileName = replace;
-
-                    File newNameFile = new File(mp3Info.mp3File.getParent(), replace);
-                    if (!newNameFile.exists()) {
-                        mp3Info.mp3File.renameTo(newNameFile);
-                        mp3Info.mp3File = newNameFile;
-
-                    }
-                }
+    private ImageView getStartImage() {
+        if (imageView == null) {
+            try {
+                InputStream resourceAsStream = HomeView.class.getClass().getResourceAsStream("/res/ic_live_play.png");
+                Image im = new Image(resourceAsStream);
+                imageView = new ImageView(im);
+            } catch (Exception e) {
             }
         }
-
-        listView.setItems(null);
-        listView.setItems(list);
+        return imageView;
     }
+
+    private ImageView imageView1 = null;
+
+    private ImageView getStopImage() {
+        if (imageView1 == null) {
+            try {
+                InputStream resourceAsStream = HomeView.class.getClass().getResourceAsStream("/res/ic_live_suspend.png");
+                Image im = new Image(resourceAsStream);
+                imageView1 = new ImageView(im);
+            } catch (Exception e) {
+            }
+        }
+        return imageView1;
+    }
+
+    private void onPlayClick() {
+
+        if (list.isEmpty()) return;
+
+        if (playManager.currentPosition == -1) {
+            playManager.play(0);
+        } else {
+            playManager.stopAndStart();
+        }
+    }
+
+
+
 }
