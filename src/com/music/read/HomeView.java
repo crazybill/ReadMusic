@@ -490,7 +490,6 @@ public class HomeView {
         playTimeLabel.setPrefWidth(45);
         playTimeLabel.setTextFill(Color.LIGHTSKYBLUE);
         playTimeLabel.setOnMouseClicked(new EventHandler<MouseEvent>() {
-            @Override
             public void handle(MouseEvent event) {
                 if (event.getButton() == MouseButton.PRIMARY) {
                     if (event.getClickCount() == 2 && playManager.currentPosition > -1 && playManager.currentPosition < list.size()) {
