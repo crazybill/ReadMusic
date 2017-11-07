@@ -137,6 +137,8 @@ public class HomeView {
                     MP3Info mp3Info = list.get(i);
                     if (mp3Info.isChecked) {
                         rList.add(mp3Info);
+
+                        
                     }
                 }
                 if (rList.size() > 0) {
