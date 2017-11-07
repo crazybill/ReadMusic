@@ -1,5 +1,6 @@
 package com.music.read;
 
+import com.jfoenix.controls.JFXCheckBox;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
@@ -107,8 +108,7 @@ public class MP3ListCell extends ListCell<MP3Info> {
 
         HBox itemView = new HBox(10);
         itemView.setAlignment(Pos.CENTER_LEFT);
-
-        CheckBox cb = new CheckBox();
+        JFXCheckBox cb = new JFXCheckBox();
         cb.setSelected(info.isChecked);
         cb.selectedProperty().addListener(new ChangeListener<Boolean>() {
             public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
