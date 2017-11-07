@@ -2,6 +2,8 @@ package com.music.read;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
@@ -19,14 +21,15 @@ public class MP3ListCell extends ListCell<MP3Info> {
 
     public MP3ListCell(HomeView homeView) {
         this.homeView = homeView;
-        emptyProperty().addListener((obs, wasEmpty, isNowEmpty) -> {
-            if (isNowEmpty) {
-                setContextMenu(null);
-            } else {
-                setContextMenu(getCM());
+        emptyProperty().addListener(new ChangeListener<Boolean>() {
+            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                if (newValue) {
+                    setContextMenu(null);
+                } else {
+                    setContextMenu(getCM());
+                }
             }
         });
-
     }
 
     private ContextMenu getCM() {
@@ -34,47 +37,55 @@ public class MP3ListCell extends ListCell<MP3Info> {
         ContextMenu contextMenu = new ContextMenu();
         MenuItem playItem = new MenuItem();
         playItem.setText("播放");
-        playItem.setOnAction(event -> {
-            MP3Info selectedItem = getListView().getSelectionModel().getSelectedItem();
-            homeView.playManager.play(selectedItem);
+
+        playItem.setOnAction(new EventHandler<ActionEvent>() {
+            public void handle(ActionEvent event) {
+                MP3Info selectedItem = getListView().getSelectionModel().getSelectedItem();
+                homeView.playManager.play(selectedItem);
+            }
         });
+
         MenuItem codeItem = new MenuItem();
         codeItem.setText("乱码处理");
-        codeItem.setOnAction(event -> {
-            MP3Info selectedItem = getListView().getSelectionModel().getSelectedItem();
-            homeView.musicParser.executList(selectedItem, true);
-
+        codeItem.setOnAction(new EventHandler<ActionEvent>() {
+            public void handle(ActionEvent event) {
+                MP3Info selectedItem = getListView().getSelectionModel().getSelectedItem();
+                homeView.musicParser.executList(selectedItem, true);
+            }
         });
         MenuItem deleteItem = new MenuItem();
         deleteItem.setText("删除");
-        deleteItem.setOnAction(event -> {
-            MP3Info selectedItem = getListView().getSelectionModel().getSelectedItem();
-            if (homeView.playManager.mp3Info == selectedItem) {
+        deleteItem.setOnAction(new EventHandler<ActionEvent>() {
+            public void handle(ActionEvent event) {
+                MP3Info selectedItem = getListView().getSelectionModel().getSelectedItem();
+                if (homeView.playManager.mp3Info == selectedItem) {
 
-                int currentPosition = homeView.playManager.currentPosition;
-                homeView.list.remove(selectedItem);
-                homeView.playManager.play(currentPosition);
-            } else {
-                homeView.list.remove(selectedItem);
-                 homeView.playManager.updateCurrentPosition();
+                    int currentPosition = homeView.playManager.currentPosition;
+                    homeView.list.remove(selectedItem);
+                    homeView.playManager.play(currentPosition);
+                } else {
+                    homeView.list.remove(selectedItem);
+                    homeView.playManager.updateCurrentPosition();
+                }
             }
         });
         MenuItem fileItem = new MenuItem();
         fileItem.setText("查看文件");
-        fileItem.setOnAction(event -> {
-            MP3Info selectedItem = getListView().getSelectionModel().getSelectedItem();
-            if (!selectedItem.mp3File.exists()) {
-                return;
-            }
-            File mp3File = selectedItem.mp3File;
-            File parentFile = mp3File.getParentFile();
+        fileItem.setOnAction(new EventHandler<ActionEvent>() {
+            public void handle(ActionEvent event) {
+                MP3Info selectedItem = getListView().getSelectionModel().getSelectedItem();
+                if (!selectedItem.mp3File.exists()) {
+                    return;
+                }
+                File mp3File = selectedItem.mp3File;
+                File parentFile = mp3File.getParentFile();
 
-            try {
-                java.awt.Desktop.getDesktop().open(new File(parentFile, "/"));
-            } catch (IOException e) {
-                e.printStackTrace();
+                try {
+                    java.awt.Desktop.getDesktop().open(new File(parentFile, "/"));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
-
         });
         contextMenu.getItems().addAll(playItem, codeItem, deleteItem, fileItem);
 
