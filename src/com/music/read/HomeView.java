@@ -1,5 +1,9 @@
 package com.music.read;
 
+import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXCheckBox;
+import com.jfoenix.controls.JFXListView;
+import com.jfoenix.controls.JFXTextField;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -33,7 +37,7 @@ import java.util.List;
  */
 public class HomeView {
 
-    public ListView<MP3Info> listView;
+    public JFXListView<MP3Info> listView;
     public ObservableList<MP3Info> list = FXCollections.observableArrayList();
     public boolean isSelectAll = true;
     private static final double WIDTH = 1000d;
@@ -133,6 +137,8 @@ public class HomeView {
                     MP3Info mp3Info = list.get(i);
                     if (mp3Info.isChecked) {
                         rList.add(mp3Info);
+
+                        
                     }
                 }
                 if (rList.size() > 0) {
@@ -242,12 +248,12 @@ public class HomeView {
         mHBox.setAlignment(Pos.CENTER_LEFT);
         Label splitLabel = new Label("文件分隔线:");
 
-        splitText = new TextField(DEFULT_PRE);
+        splitText = new JFXTextField(DEFULT_PRE);
         splitText.setAlignment(Pos.CENTER);
         splitText.setPrefWidth(40);
 
 
-        CheckBox headBox = new CheckBox("歌手名在前");
+        JFXCheckBox headBox = new JFXCheckBox("歌手名在前");
         headBox.setSelected(nameFirst);
         headBox.selectedProperty().addListener(new ChangeListener<Boolean>() {
             public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
@@ -256,7 +262,8 @@ public class HomeView {
         });
 
 
-        Button btn_ana = new Button("开始分析");
+        JFXButton btn_ana = new JFXButton("开始分析");
+        btn_ana.setButtonType(JFXButton.ButtonType.RAISED);
         btn_ana.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent event) {
                 musicParser.executList();
@@ -276,15 +283,16 @@ public class HomeView {
         mHBox.setAlignment(Pos.CENTER_LEFT);
         Label petchDeletLabel = new Label("批量改文件名:");
 
-        deleteBeforText = new TextField();
+        deleteBeforText = new JFXTextField();
         deleteBeforText.setPromptText("改前");
-        deleteBeforText.setPrefWidth(50);
+        deleteBeforText.setPrefWidth(40);
 
-        deleteAfterText = new TextField();
+        deleteAfterText = new JFXTextField();
         deleteAfterText.setPromptText("改后");
-        deleteAfterText.setPrefWidth(50);
+        deleteAfterText.setPrefWidth(40);
 
-        Button btn_delete = new Button("开始更改");
+        JFXButton btn_delete = new JFXButton("开始更改");
+        btn_delete.setButtonType(JFXButton.ButtonType.RAISED);
         btn_delete.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent event) {
 
@@ -307,13 +315,14 @@ public class HomeView {
         HBox mHBox = new HBox(5);
         mHBox.setAlignment(Pos.CENTER_LEFT);
         Label label1 = new Label("在第");
-        text1 = new TextField();
-        text1.setPrefWidth(30);
+        text1 = new JFXTextField();
+        text1.setPrefWidth(40);
         Label label2 = new Label("位前，添加");
-        text2 = new TextField();
-        text2.setPrefWidth(50);
+        text2 = new JFXTextField();
+        text2.setPrefWidth(40);
 
-        Button btn_add = new Button("开始添加");
+        JFXButton btn_add = new JFXButton("开始添加");
+        btn_add.setButtonType(JFXButton.ButtonType.RAISED);
         btn_add.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent event) {
                 String textWei = text1.getText();
@@ -342,7 +351,9 @@ public class HomeView {
     private HBox headSettingView;
 
     private void initSettingView() {
-        headSettingView = new HBox(5);
+        headSettingView = new HBox();
+        headSettingView.setPadding(new Insets(8, 8, 8, 8));
+        headSettingView.setSpacing(8);
         headSettingView.setAlignment(Pos.CENTER_LEFT);
 
         errorCodeSetting = getErrorCodeSetting();
@@ -403,16 +414,18 @@ public class HomeView {
     private void initView() {
 
         rootView = new VBox();
-        rootView.setPadding(new Insets(10, 10, 10, 10));
-        rootView.setSpacing(10);
+        //rootView.setPadding(new Insets(10, 10, 10, 10));
+        //  rootView.setSpacing(10);
         rootView.setAlignment(Pos.TOP_CENTER);
         rootView.setBackground(Background.EMPTY);
 
         initSettingView();
 
-        listView = new ListView<MP3Info>();
+        listView = new JFXListView<MP3Info>();
         listView.setItems(list);
         listView.setEditable(true);
+        listView.setBorder(FxViewUtil.getBorder(Color.WHITE, 0, 0));
+        listView.setBackground(FxViewUtil.getBackground(Color.WHITE, 0));
         listView.setOrientation(Orientation.VERTICAL);
         listView.setCellFactory(new Callback<ListView<MP3Info>, ListCell<MP3Info>>() {
             public ListCell<MP3Info> call(ListView<MP3Info> param) {
@@ -442,8 +455,8 @@ public class HomeView {
     private HBox getHeadTitle() {
         HBox itemView = new HBox(10);
         itemView.setAlignment(Pos.CENTER_LEFT);
-        itemView.setPadding(new Insets(0, 9, 0, 9));
-        CheckBox cb = new CheckBox();
+        itemView.setPadding(new Insets(5, 9, 5, 9));
+        JFXCheckBox cb = new JFXCheckBox();
         cb.setSelected(isSelectAll);
         cb.selectedProperty().addListener(new ChangeListener<Boolean>() {
             public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
@@ -499,7 +512,7 @@ public class HomeView {
             }
         });
 
-        playStop = new Button();
+        playStop = new JFXButton();
         setButtonPlay();
         playStop.setBackground(null);
         playStop.setOnAction(new EventHandler<ActionEvent>() {
@@ -551,6 +564,7 @@ public class HomeView {
             } catch (Exception e) {
             }
         }
+
         return imageView1;
     }
 
