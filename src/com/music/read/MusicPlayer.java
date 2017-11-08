@@ -36,9 +36,16 @@ public class MusicPlayer {
     }
 
 
+    public void play(final File file, final PlayStateListener listener) {
+
+        playMP3(file, listener);
+
+    }
+
+
     private SourceDataLine line;
 
-    public void play(final File file, final PlayStateListener listener) {
+    private void playMP3(final File file, final PlayStateListener listener) {
         if (isPlaying()) {
             closePlay();
         }
@@ -46,7 +53,12 @@ public class MusicPlayer {
             public void run() {
                 try {
                     AudioInputStream in = AudioSystem.getAudioInputStream(file);
-                    AudioFormat outFormat = getOutFormat(in.getFormat());
+
+                    AudioFormat format = in.getFormat();
+                    int ch = format.getChannels();
+                    float rate = format.getSampleRate();
+                    AudioFormat outFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, rate, 16, ch, ch * 2, rate, false);
+
                     DataLine.Info info = new DataLine.Info(SourceDataLine.class, outFormat);
                     line = (SourceDataLine) AudioSystem.getLine(info);
                     line.addLineListener(new LineListener() {
@@ -74,7 +86,6 @@ public class MusicPlayer {
                         }
                     });
 
-
                     if (line != null) {
                         line.open(outFormat);
                         line.start();
@@ -86,10 +97,16 @@ public class MusicPlayer {
                     }
 
                 } catch (Exception e) {
-                    throw new IllegalStateException(e);
+                    e.printStackTrace();
                 }
             }
         });
+    }
+
+
+    private void flacPlayer() {
+
+
     }
 
     public void startPlay() {
@@ -114,11 +131,6 @@ public class MusicPlayer {
         }
     }
 
-    private AudioFormat getOutFormat(AudioFormat inFormat) {
-        int ch = inFormat.getChannels();
-        float rate = inFormat.getSampleRate();
-        return new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, rate, 16, ch, ch * 2, rate, false);
-    }
 
     private void stream(AudioInputStream in, SourceDataLine line)
             throws IOException {

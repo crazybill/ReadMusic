@@ -3,6 +3,7 @@ package com.music.read;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
 import org.jaudiotagger.audio.AudioHeader;
 import org.jaudiotagger.audio.mp3.MP3File;
@@ -37,7 +38,7 @@ public class MusicParser {
                 for (int i = 0; i < files.size(); i++) {
                     File f = files.get(i);
                     String name = f.getName();
-                    if (name.endsWith(".mp3") || name.endsWith(".MP3")) {
+                    if (isMusicFile(name)) {
                         MP3Info bean = new MP3Info();
                         bean.isChecked = main.isSelectAll;
                         bean.fileName = name;
@@ -65,17 +66,21 @@ public class MusicParser {
                 alert.setContentText(msg);
             }
         });
+    }
 
+    private boolean isMusicFile(String name) {
+
+        return name.endsWith(".mp3") || name.endsWith(".MP3") || name.endsWith(".flac") || name.endsWith(".FLAC") || name.endsWith(".wav") || name.endsWith(".ogg") || name.endsWith(".ape");
     }
 
 
     private void parseMP3Info(MP3Info bean) {
 
         try {
-            MP3File mp3File = (MP3File) AudioFileIO.read(bean.mp3File);
-            AudioHeader audioHeader = mp3File.getAudioHeader();
+            AudioFile read = AudioFileIO.read(bean.mp3File);
+            AudioHeader audioHeader = read.getAudioHeader();
             bean.time = audioHeader.getTrackLength();
-            Tag tag = mp3File.getTag();
+            Tag tag = read.getTag();
             if (tag != null) {
 
                 bean.title = tag.getFirst(FieldKey.TITLE);

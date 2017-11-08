@@ -66,10 +66,15 @@ public class HomeView {
         this.primaryStage = primaryStage;
         primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
             public void handle(WindowEvent event) {
-                PlayListManager.savePlayList(list);
-                System.exit(0);
+                exitApp();
             }
         });
+    }
+
+
+    public void exitApp() {
+        PlayListManager.savePlayList(list);
+        System.exit(0);
     }
 
 
@@ -77,7 +82,7 @@ public class HomeView {
         musicParser = new MusicParser(this);
         playManager = new PlayManager(this);
         fileNameEditer = new FileNameEditer(this);
-        setCurrentPlayTitle("MP3信息助手");
+        setCurrentPlayTitle(Main.APP_NAME);
         borderPane = new BorderPane();
         Scene scene = new Scene(borderPane, WIDTH, HIGTH);
         primaryStage.setScene(scene);
@@ -119,8 +124,7 @@ public class HomeView {
             public void handle(ActionEvent event) {
                 FileChooser chooser = new FileChooser();
                 chooser.getExtensionFilters().addAll(
-                        new FileChooser.ExtensionFilter("All Images", "*.*"),
-                        new FileChooser.ExtensionFilter("MP3", "*.mp3")
+                        new FileChooser.ExtensionFilter("All Images", "*.*")
                 );
                 List<File> files = chooser.showOpenMultipleDialog(primaryStage);
                 if (files != null) {
@@ -138,7 +142,7 @@ public class HomeView {
                     if (mp3Info.isChecked) {
                         rList.add(mp3Info);
 
-                        
+
                     }
                 }
                 if (rList.size() > 0) {
@@ -165,7 +169,7 @@ public class HomeView {
         MenuItem exitItem = new MenuItem("退出");
         exitItem.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent event) {
-                Platform.exit();
+                exitApp();
             }
         });
 
@@ -512,7 +516,7 @@ public class HomeView {
             }
         });
 
-        playStop = new JFXButton();
+        playStop = new Button();
         setButtonPlay();
         playStop.setBackground(null);
         playStop.setOnAction(new EventHandler<ActionEvent>() {

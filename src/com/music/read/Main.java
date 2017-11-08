@@ -15,7 +15,9 @@ import java.awt.image.BufferedImage;
  * Created by xupanpan on 12/10/2017.
  */
 public class Main extends Application {
+    public static final String APP_NAME = "MusicOcean";
     private TrayIcon trayIcon;
+    private HomeView homeView;
 
     public static void main(String[] args) {
         launch(args);
@@ -23,9 +25,7 @@ public class Main extends Application {
 
     public void start(final Stage primaryStage) throws Exception {
         enableTray(primaryStage);
-
-
-        HomeView homeView = new HomeView(primaryStage);
+        homeView = new HomeView(primaryStage);
         homeView.init();
         Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler());
     }
@@ -44,7 +44,7 @@ public class Main extends Application {
 
                 if (item.getLabel().equals("退出")) {
                     SystemTray.getSystemTray().remove(trayIcon);
-                    Platform.exit();
+                    homeView.exitApp();
                     return;
                 }
                 if (item.getLabel().equals("显示")) {
@@ -73,8 +73,8 @@ public class Main extends Application {
             SystemTray tray = SystemTray.getSystemTray();
             BufferedImage image = ImageIO.read(Main.class.getClass()
                     .getResourceAsStream("/res/icon.png"));
-            trayIcon = new TrayIcon(image, "Music助手", popupMenu);
-            trayIcon.setToolTip("Music助手");
+            trayIcon = new TrayIcon(image, APP_NAME, popupMenu);
+            trayIcon.setToolTip(APP_NAME);
             tray.add(trayIcon);
         } catch (Exception e) {
             e.printStackTrace();
