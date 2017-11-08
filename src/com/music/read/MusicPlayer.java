@@ -34,12 +34,17 @@ public class MusicPlayer {
 
 
     public void play(MP3Info mp3Info, PlayStateListener listener) {
-        if(mp3Info.fileName.endsWith(".flac")){
+    /*    if(mp3Info.fileName.endsWith(".flac")){
 
+            FlacPlayer flacPlayer = new FlacPlayer();
+
+            flacPlayer.play(mp3Info,listener);
 
         }else {
-            playMP3(mp3Info.mp3File, listener);
-        }
+
+        }*/
+
+        playMP3(mp3Info.mp3File, listener);
     }
 
 
@@ -72,6 +77,7 @@ public class MusicPlayer {
                                     if (playScheduleListener != null) {
                                         playScheduleListener.onPlaying(0);
                                     }
+                                    System.out.println("bo wan le b");
                                     listener.onClose();
                                 } else if (LineEvent.Type.START == type) {
                                     isPlaying = true;
@@ -92,6 +98,7 @@ public class MusicPlayer {
                         line.drain();
                         closePlay();
                         in.close();
+                        System.out.println("bo wan le a");
                     }
 
                 } catch (Exception e) {
@@ -127,7 +134,7 @@ public class MusicPlayer {
 
     private void stream(AudioInputStream in, SourceDataLine line)
             throws IOException {
-        byte[] buffer = new byte[2048];
+        byte[] buffer = new byte[65536];
         for (int n = 0; n != -1; n = in.read(buffer, 0, buffer.length)) {
             line.write(buffer, 0, n);
         }
