@@ -87,48 +87,56 @@ public class PlayManager {
         }
     }
 
+
+    private PlayStateListener mPlayStateListener = new PlayStateListener() {
+
+        public void onOpen() {
+            updateUIShow();
+        }
+
+        public void onStart() {
+            isUserControl = false;
+            Platform.runLater(new Runnable() {
+                public void run() {
+                    homeView.setButtonStop();
+                    homeView.setCurrentPlayTitle((currentPosition + 1) + " # " + mp3Info.fileName + "   " + mp3Info.mp3File.getPath());
+                }
+            });
+        }
+
+        public void onStop() {
+
+            Platform.runLater(new Runnable() {
+                public void run() {
+                    homeView.setButtonPlay();
+                }
+            });
+        }
+
+        public void onClose() {
+            if (!isUserControl) {
+                Platform.runLater(new Runnable() {
+                    public void run() {
+                        playNextAuto();
+                    }
+                });
+            }
+        }
+    };
+
+
     private void playMusic() {
 
         if (mp3Info == null) {
             return;
         }
 
-        MusicPlayer.getInstans().play(mp3Info.mp3File, new PlayStateListener() {
-
-            public void onOpen() {
-                updateUIShow();
-            }
-
-            public void onStart() {
-                isUserControl = false;
-                Platform.runLater(new Runnable() {
-                    public void run() {
-                        homeView.setButtonStop();
-                        homeView.setCurrentPlayTitle((currentPosition + 1) + " # " + mp3Info.fileName + "   " + mp3Info.mp3File.getPath());
-                    }
-                });
-            }
-
-            public void onStop() {
-
-                Platform.runLater(new Runnable() {
-                    public void run() {
-                        homeView.setButtonPlay();
-                    }
-                });
-            }
-
-            public void onClose() {
-                if (!isUserControl) {
-                    playNextAuto();
-                }
-            }
-        });
+        MusicPlayer.getInstans().play(mp3Info, mPlayStateListener);
 
     }
 
 
-    public void closePlay(){
+    public void closePlay() {
         isUserControl = true;
         MusicPlayer.getInstans().closePlay();
 

@@ -18,10 +18,7 @@ public class MusicPlayer {
     private PlayScheduleListener playScheduleListener;
 
     private MusicPlayer() {
-    }
 
-    public PlayScheduleListener getPlayScheduleListener() {
-        return playScheduleListener;
     }
 
     public void setPlayScheduleListener(PlayScheduleListener playScheduleListener) {
@@ -36,10 +33,13 @@ public class MusicPlayer {
     }
 
 
-    public void play(final File file, final PlayStateListener listener) {
+    public void play(MP3Info mp3Info, PlayStateListener listener) {
+        if(mp3Info.fileName.endsWith(".flac")){
 
-        playMP3(file, listener);
 
+        }else {
+            playMP3(mp3Info.mp3File, listener);
+        }
     }
 
 
@@ -73,7 +73,6 @@ public class MusicPlayer {
                                         playScheduleListener.onPlaying(0);
                                     }
                                     listener.onClose();
-
                                 } else if (LineEvent.Type.START == type) {
                                     isPlaying = true;
                                     startTime();
@@ -91,8 +90,7 @@ public class MusicPlayer {
                         line.start();
                         stream(AudioSystem.getAudioInputStream(outFormat, in), line);
                         line.drain();
-                        line.stop();
-                        line.close();
+                        closePlay();
                         in.close();
                     }
 
@@ -101,12 +99,6 @@ public class MusicPlayer {
                 }
             }
         });
-    }
-
-
-    private void flacPlayer() {
-
-
     }
 
     public void startPlay() {
@@ -121,6 +113,7 @@ public class MusicPlayer {
 
     public void closePlay() {
         if (line != null) {
+            line.stop();
             line.close();
         }
     }
@@ -164,6 +157,4 @@ public class MusicPlayer {
         timer.cancel();
         timePosition = 0;
     }
-
-
 }

@@ -18,8 +18,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
+import javafx.scene.input.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
@@ -69,6 +68,7 @@ public class HomeView {
                 exitApp();
             }
         });
+
     }
 
 
@@ -453,6 +453,25 @@ public class HomeView {
         });
 
         VBox.setVgrow(listView, Priority.ALWAYS);
+
+        listView.setOnDragOver(new EventHandler<DragEvent>() {
+            public void handle(DragEvent event) {
+                if (event.getGestureSource() != listView) {
+                    event.acceptTransferModes(TransferMode.ANY);
+                }
+            }
+        });
+
+        listView.setOnDragDropped(new EventHandler<DragEvent>() {
+            public void handle(DragEvent event) {
+                Dragboard dragboard = event.getDragboard();
+                List<File> files = dragboard.getFiles();
+                if (files.size() > 0) {
+                    musicParser.loadMp3Data(files);
+                }
+            }
+        });
+
         rootView.getChildren().addAll(getHeadTitle(), listView);
     }
 
