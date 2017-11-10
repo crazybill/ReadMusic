@@ -28,7 +28,7 @@ public class FileNameEditer {
             wei = 1;
         }
 
-        for (MP3Info mp3Info : homeView.list) {
+        for (MP3Info mp3Info : DataManager.getInstans().getList()) {
             if (mp3Info.isChecked) {
                 String fileName = mp3Info.fileName;
                 if (wei == 1) {
@@ -53,7 +53,7 @@ public class FileNameEditer {
             }
         }
         homeView.listView.setItems(null);
-        homeView.listView.setItems(homeView.list);
+        homeView.listView.setItems(DataManager.getInstans().getList());
 
     }
 
@@ -66,7 +66,7 @@ public class FileNameEditer {
             textAfter = "";
         }
 
-        for (MP3Info mp3Info : homeView.list) {
+        for (MP3Info mp3Info : DataManager.getInstans().getList()) {
             if (mp3Info.isChecked) {
                 String fileName = mp3Info.fileName;
                 if (fileName.contains(textBefor)) {
@@ -85,7 +85,7 @@ public class FileNameEditer {
         }
 
         homeView.listView.setItems(null);
-        homeView.listView.setItems(homeView.list);
+        homeView.listView.setItems(DataManager.getInstans().getList());
     }
 
 

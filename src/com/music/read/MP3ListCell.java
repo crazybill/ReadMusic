@@ -59,7 +59,7 @@ public class MP3ListCell extends ListCell<MP3Info> {
         deleteItem.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent event) {
                 MP3Info selectedItem = getListView().getSelectionModel().getSelectedItem();
-                if (homeView.playManager.mp3Info == selectedItem) {
+          /*      if (homeView.playManager.mp3Info == selectedItem) {
 
                     int currentPosition = homeView.playManager.currentPosition;
                     homeView.list.remove(selectedItem);
@@ -67,7 +67,7 @@ public class MP3ListCell extends ListCell<MP3Info> {
                 } else {
                     homeView.list.remove(selectedItem);
                     homeView.playManager.updateCurrentPosition();
-                }
+                }*/
             }
         });
         MenuItem fileItem = new MenuItem();

@@ -7,9 +7,7 @@ import javafx.application.Platform;
  */
 public class PlayManager {
     private HomeView homeView;
-    public int currentPosition = -1;
 
-    public MP3Info mp3Info;
     private boolean isUserControl;
 
 
@@ -30,10 +28,7 @@ public class PlayManager {
     }
 
     public void play(int position) {
-        if (position < 0 || position >= homeView.list.size()) {
-            return;
-        }
-        play(homeView.list.get(position));
+        play(DataManager.getInstans().getMP3InfoByPosition(position));
     }
 
 
@@ -41,39 +36,18 @@ public class PlayManager {
         if (info == null || !info.mp3File.exists()) {
             return;
         }
-        updateCurrentPosition();
-        mp3Info = info;
-        currentPosition = homeView.list.indexOf(info);
+
+        DataManager.getInstans().setNewPlayPosition(info);
         isUserControl = true;
         playMusic();
     }
 
     public void playNextAuto() {
-
-        int size = homeView.list.size();
-
-        if (size > 0) {
-            if (size != 1) {
-                if (currentPosition + 1 < size) {
-                    currentPosition = currentPosition + 1;
-                } else {
-                    currentPosition = 0;
-                }
-                mp3Info = homeView.list.get(currentPosition);
-            }
-            playMusic();
-            homeView.listView.scrollTo(currentPosition);
-        }
+        DataManager.getInstans().setPlayNextPosition();
+        playMusic();
+        homeView.listView.scrollTo(DataManager.getInstans().getCurrentPlayPosition());
     }
 
-    public void updateCurrentPosition() {
-
-        if (mp3Info == null) {
-            return;
-        }
-        currentPosition = homeView.list.indexOf(mp3Info);
-
-    }
 
     public void stopAndStart() {
 
@@ -82,7 +56,7 @@ public class PlayManager {
             MusicPlayer.getInstans().closePlay();
 
         } else {
-            play(currentPosition);
+            playMusic();
             homeView.setButtonPlay();
         }
     }
@@ -98,8 +72,9 @@ public class PlayManager {
             isUserControl = false;
             Platform.runLater(new Runnable() {
                 public void run() {
+                    MP3Info currentPlayInfo = DataManager.getInstans().getCurrentPlayInfo();
                     homeView.setButtonStop();
-                    homeView.setCurrentPlayTitle((currentPosition + 1) + " # " + mp3Info.fileName + "   " + mp3Info.mp3File.getPath());
+                    homeView.setCurrentPlayTitle((DataManager.getInstans().getCurrentPlayPosition() + 1) + " # " + currentPlayInfo.fileName + "   " + currentPlayInfo.mp3File.getPath());
                 }
             });
         }
@@ -127,11 +102,7 @@ public class PlayManager {
 
     private void playMusic() {
 
-        if (mp3Info == null) {
-            return;
-        }
-
-        MusicPlayer.getInstans().play(mp3Info, mPlayStateListener);
+        MusicPlayer.getInstans().play(mPlayStateListener);
 
     }
 
@@ -146,12 +117,8 @@ public class PlayManager {
     private void updateUIShow() {
         Platform.runLater(new Runnable() {
             public void run() {
-                for (MP3Info info : homeView.list) {
-                    info.isPlaying = false;
-                }
-                mp3Info.isPlaying = true;
                 homeView.listView.setItems(null);
-                homeView.listView.setItems(homeView.list);
+                homeView.listView.setItems(DataManager.getInstans().getList());
             }
         });
 

@@ -13,7 +13,6 @@ import java.util.concurrent.Executors;
  */
 public class MusicPlayer {
 
-    private Executor executor = Executors.newSingleThreadExecutor();
     private static MusicPlayer mMusicPlayer;
     private PlayScheduleListener playScheduleListener;
 
@@ -33,18 +32,11 @@ public class MusicPlayer {
     }
 
 
-    public void play(MP3Info mp3Info, PlayStateListener listener) {
-    /*    if(mp3Info.fileName.endsWith(".flac")){
+    public void play(PlayStateListener listener) {
 
-            FlacPlayer flacPlayer = new FlacPlayer();
+        MP3Info currentPlayInfo = DataManager.getInstans().getCurrentPlayInfo();
 
-            flacPlayer.play(mp3Info,listener);
-
-        }else {
-
-        }*/
-
-        playMP3(mp3Info.mp3File, listener);
+        playMP3(currentPlayInfo.mp3File, listener);
     }
 
 
@@ -54,7 +46,8 @@ public class MusicPlayer {
         if (isPlaying()) {
             closePlay();
         }
-        executor.execute(new Runnable() {
+
+        Runnable runnable = new Runnable() {
             public void run() {
                 try {
                     AudioInputStream in = AudioSystem.getAudioInputStream(file);
@@ -77,7 +70,6 @@ public class MusicPlayer {
                                     if (playScheduleListener != null) {
                                         playScheduleListener.onPlaying(0);
                                     }
-                                    System.out.println("bo wan le b");
                                     listener.onClose();
                                 } else if (LineEvent.Type.START == type) {
                                     isPlaying = true;
@@ -98,14 +90,16 @@ public class MusicPlayer {
                         line.drain();
                         closePlay();
                         in.close();
-                        System.out.println("bo wan le a");
                     }
 
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
-        });
+        };
+
+        Thread thread = new Thread(runnable);
+        thread.start();
     }
 
     public void startPlay() {

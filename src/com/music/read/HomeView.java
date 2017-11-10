@@ -37,7 +37,7 @@ import java.util.List;
 public class HomeView {
 
     public JFXListView<MP3Info> listView;
-    public ObservableList<MP3Info> list = FXCollections.observableArrayList();
+
     public boolean isSelectAll = true;
     private static final double WIDTH = 1000d;
     private static final double HIGTH = 700d;
@@ -73,7 +73,7 @@ public class HomeView {
 
 
     public void exitApp() {
-        PlayListManager.savePlayList(list);
+        PlayListManager.savePlayList(DataManager.getInstans().getList());
         System.exit(0);
     }
 
@@ -98,14 +98,7 @@ public class HomeView {
     private void initData() {
         List<MP3Info> historyPlayList = PlayListManager.getHistoryPlayList();
         if (historyPlayList != null) {
-            list.addAll(historyPlayList);
-            for (int i = 0; i < historyPlayList.size(); i++) {
-                MP3Info mp3Info = historyPlayList.get(i);
-                if (mp3Info.isPlaying) {
-                    playManager.currentPosition = i;
-                    break;
-                }
-            }
+            DataManager.getInstans().add2List(historyPlayList);
         }
     }
 
@@ -136,32 +129,14 @@ public class HomeView {
         MenuItem clearItem = new MenuItem("删除选中");
         clearItem.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent event) {
-                List<MP3Info> rList = new ArrayList<MP3Info>();
-                for (int i = 0; i < list.size(); i++) {
-                    MP3Info mp3Info = list.get(i);
-                    if (mp3Info.isChecked) {
-                        rList.add(mp3Info);
-
-
-                    }
-                }
-                if (rList.size() > 0) {
-                    for (MP3Info info : rList) {
-                        if (info == playManager.mp3Info) {
-                            playManager.closePlay();
-                        }
-                        list.remove(info);
-                    }
-                    playManager.updateCurrentPosition();
-                }
+                DataManager.getInstans().removeSelected();
             }
         });
 
         MenuItem clearAllItem = new MenuItem("清空列表");
         clearAllItem.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent event) {
-                list.clear();
-                playManager.currentPosition = -1;
+                DataManager.getInstans().clearList();
                 playManager.closePlay();
             }
         });
@@ -414,7 +389,6 @@ public class HomeView {
 
     }
 
-
     private void initView() {
 
         rootView = new VBox();
@@ -426,7 +400,7 @@ public class HomeView {
         initSettingView();
 
         listView = new JFXListView<MP3Info>();
-        listView.setItems(list);
+        listView.setItems(DataManager.getInstans().getList());
         listView.setEditable(true);
         listView.setBorder(FxViewUtil.getBorder(Color.WHITE, 0, 0));
         listView.setBackground(FxViewUtil.getBackground(Color.WHITE, 0));
@@ -484,13 +458,9 @@ public class HomeView {
         cb.selectedProperty().addListener(new ChangeListener<Boolean>() {
             public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
                 isSelectAll = newValue;
-                if (!list.isEmpty()) {
-                    for (MP3Info mp3Info : list) {
-                        mp3Info.isChecked = newValue;
-                    }
-                    listView.setItems(null);
-                    listView.setItems(list);
-                }
+                DataManager.getInstans().setAllCheckStatus(newValue);
+                listView.setItems(null);
+                listView.setItems(DataManager.getInstans().getList());
             }
         });
 
@@ -528,8 +498,9 @@ public class HomeView {
         playTimeLabel.setOnMouseClicked(new EventHandler<MouseEvent>() {
             public void handle(MouseEvent event) {
                 if (event.getButton() == MouseButton.PRIMARY) {
-                    if (event.getClickCount() == 2 && playManager.currentPosition > -1 && playManager.currentPosition < list.size()) {
-                        listView.scrollTo(playManager.currentPosition);
+                    if (event.getClickCount() == 2) {
+                        int currentPlayPosition = DataManager.getInstans().getCurrentPlayPosition();
+                        listView.scrollTo(currentPlayPosition);
                     }
                 }
             }
@@ -593,9 +564,9 @@ public class HomeView {
 
     private void onPlayClick() {
 
-        if (list.isEmpty()) return;
+        if (DataManager.getInstans().isListEmpty()) return;
 
-        if (playManager.currentPosition == -1) {
+        if (DataManager.getInstans().getCurrentPlayPosition() == -1) {
             playManager.play(0);
         } else {
             playManager.stopAndStart();

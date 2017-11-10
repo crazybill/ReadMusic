@@ -62,7 +62,7 @@ public class MusicParser {
     public void updateLoad(final MP3Info bean, final String msg) {
         Platform.runLater(new Runnable() {
             public void run() {
-                main.list.add(bean);
+                DataManager.getInstans().add2List(bean);
                 alert.setContentText(msg);
             }
         });
@@ -97,12 +97,12 @@ public class MusicParser {
 
     public void executList() {
 
-        for (MP3Info mp3Info : main.list) {
+        for (MP3Info mp3Info : DataManager.getInstans().getList()) {
             executList(mp3Info, false);
         }
 
         main.listView.setItems(null);
-        main.listView.setItems(main.list);
+        main.listView.setItems(DataManager.getInstans().getList());
 
     }
 
@@ -153,7 +153,7 @@ public class MusicParser {
 
         if (update) {
             main.listView.setItems(null);
-            main.listView.setItems(main.list);
+            main.listView.setItems(DataManager.getInstans().getList());
         }
     }
 
