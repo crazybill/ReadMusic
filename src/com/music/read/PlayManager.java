@@ -10,6 +10,19 @@ public class PlayManager {
 
     private boolean isUserControl;
 
+    public enum PlayType {
+        SINGLE, RECYCLE, RADOM
+    }
+
+    private PlayType playType = PlayType.RECYCLE;
+
+    public PlayType getPlayType() {
+        return playType;
+    }
+
+    public void setPlayType(PlayType playType) {
+        this.playType = playType;
+    }
 
     private PlayScheduleListener listener = new PlayScheduleListener() {
         public void onPlaying(final int position) {
@@ -43,11 +56,35 @@ public class PlayManager {
     }
 
     public void playNextAuto() {
-        DataManager.getInstans().setPlayNextPosition();
+
+        switch (playType) {
+            case RADOM:
+                DataManager.getInstans().setPlayNextRadomPosition();
+                break;
+            case RECYCLE:
+                DataManager.getInstans().setPlayNextPosition();
+                break;
+            case SINGLE:
+
+                break;
+        }
+
         playMusic();
         homeView.listView.scrollTo(DataManager.getInstans().getCurrentPlayPosition());
     }
 
+    public void playNext() {
+        isUserControl = true;
+        DataManager.getInstans().setPlayNextPosition();
+        playMusic();
+    }
+
+
+    public void playLast() {
+        isUserControl = true;
+        DataManager.getInstans().setPlayLastPosition();
+        playMusic();
+    }
 
     public void stopAndStart() {
 

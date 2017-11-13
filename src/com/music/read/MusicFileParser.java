@@ -18,11 +18,11 @@ import java.util.concurrent.Executors;
 /**
  * Created by xupanpan on 03/11/2017.
  */
-public class MusicParser {
+public class MusicFileParser {
     private Executor executor = Executors.newSingleThreadExecutor();
     private HomeView main;
 
-    public MusicParser(HomeView main) {
+    public MusicFileParser(HomeView main) {
         this.main = main;
     }
 
@@ -37,15 +37,7 @@ public class MusicParser {
             public void run() {
                 for (int i = 0; i < files.size(); i++) {
                     File f = files.get(i);
-                    String name = f.getName();
-                    if (isMusicFile(name)) {
-                        MP3Info bean = new MP3Info();
-                        bean.isChecked = main.isSelectAll;
-                        bean.fileName = name;
-                        bean.mp3File = f;
-                        parseMP3Info(bean);
-                        updateLoad(bean, "已加载：" + (i + 1) + "/" + files.size());
-                    }
+                    loadFile(f);
                 }
 
                 Platform.runLater(new Runnable() {
@@ -57,6 +49,28 @@ public class MusicParser {
             }
         });
         alert.showAndWait();
+    }
+
+
+    private void loadFile(File f) {
+
+        if (f.isFile()) {
+            String name = f.getName();
+            if (isMusicFile(name)) {
+                MP3Info bean = new MP3Info();
+                bean.isChecked = main.isSelectAll;
+                bean.fileName = name;
+                bean.mp3File = f;
+                if (parseMP3Info(bean)) {
+                    updateLoad(bean, "正加载：" + name);
+                }
+            }
+        } else {
+            File[] files = f.listFiles();
+            for (File ff : files) {
+                loadFile(ff);
+            }
+        }
     }
 
     public void updateLoad(final MP3Info bean, final String msg) {
@@ -74,7 +88,7 @@ public class MusicParser {
     }
 
 
-    private void parseMP3Info(MP3Info bean) {
+    private boolean parseMP3Info(MP3Info bean) {
 
         try {
             AudioFile read = AudioFileIO.read(bean.mp3File);
@@ -82,16 +96,16 @@ public class MusicParser {
             bean.time = audioHeader.getTrackLength();
             Tag tag = read.getTag();
             if (tag != null) {
-
                 bean.title = tag.getFirst(FieldKey.TITLE);
                 bean.artist = tag.getFirst(FieldKey.ARTIST);
                 bean.album = tag.getFirst(FieldKey.ALBUM);
                 bean.genre = tag.getFirst(FieldKey.GENRE);
-
+                return true;
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return false;
     }
 
 

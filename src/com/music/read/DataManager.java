@@ -5,6 +5,7 @@ import javafx.collections.ObservableList;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class DataManager {
 
@@ -57,13 +58,17 @@ public class DataManager {
         }
     }
 
-    public synchronized void removeSelected() {
+    public synchronized boolean removeSelected() {
 
+        boolean isPlayCurrent = false;
         List<MP3Info> rList = new ArrayList<MP3Info>();
         for (int i = 0; i < list.size(); i++) {
             MP3Info mp3Info = list.get(i);
             if (mp3Info.isChecked) {
                 rList.add(mp3Info);
+                if (mp3Info.isPlaying) {
+                    isPlayCurrent = true;
+                }
             }
         }
         if (rList.size() > 0) {
@@ -71,7 +76,11 @@ public class DataManager {
                 list.remove(info);
             }
         }
+        return isPlayCurrent;
+    }
 
+    public synchronized void removeMP3Info(MP3Info info) {
+        list.remove(info);
     }
 
     public synchronized int getCurrentPlayPosition() {
@@ -96,6 +105,19 @@ public class DataManager {
     }
 
 
+    public synchronized void setPlayNextRadomPosition() {
+        clearCurrentPlayPosition();
+
+        Random random = new Random();
+        int i = random.nextInt(list.size() - 1);
+
+        if (i != -1) {
+            list.get(i).isPlaying = true;
+        }
+
+    }
+
+
     public synchronized void setPlayNextPosition() {
 
         int nextPosition = -1;
@@ -114,7 +136,26 @@ public class DataManager {
         if (nextPosition != -1) {
             list.get(nextPosition).isPlaying = true;
         }
+    }
 
+    public synchronized void setPlayLastPosition() {
+
+        int lastPosition = -1;
+        for (int i = 0; i < list.size(); i++) {
+            MP3Info mp3Info = list.get(i);
+            if (mp3Info.isPlaying) {
+                if (i == 0) {
+                    lastPosition = list.size() - 1;
+                } else {
+                    lastPosition = i - 1;
+                }
+                mp3Info.isPlaying = false;
+                break;
+            }
+        }
+        if (lastPosition != -1) {
+            list.get(lastPosition).isPlaying = true;
+        }
     }
 
     public synchronized void clearCurrentPlayPosition() {

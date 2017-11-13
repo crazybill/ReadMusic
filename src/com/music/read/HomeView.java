@@ -53,7 +53,7 @@ public class HomeView {
     private boolean isShowAddSettingView = false;
     private MenuBar menuBar;
 
-    public MusicParser musicParser;
+    public MusicFileParser musicParser;
     public PlayManager playManager;
     public FileNameEditer fileNameEditer;
 
@@ -75,7 +75,7 @@ public class HomeView {
 
 
     public void init() {
-        musicParser = new MusicParser(this);
+        musicParser = new MusicFileParser(this);
         playManager = new PlayManager(this);
         fileNameEditer = new FileNameEditer(this);
         setCurrentPlayTitle(Main.APP_NAME);
@@ -125,7 +125,10 @@ public class HomeView {
         MenuItem clearItem = new MenuItem("删除选中");
         clearItem.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent event) {
-                DataManager.getInstans().removeSelected();
+                if (DataManager.getInstans().removeSelected()) {
+                    setCurrentPlayTitle(Main.APP_NAME);
+                    playManager.closePlay();
+                }
             }
         });
 
@@ -133,6 +136,7 @@ public class HomeView {
         clearAllItem.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent event) {
                 DataManager.getInstans().clearList();
+                setCurrentPlayTitle(Main.APP_NAME);
                 playManager.closePlay();
             }
         });
@@ -207,11 +211,57 @@ public class HomeView {
     private void initPlayerView() {
 
         Menu playMenu = new Menu("play");
-        playMenu.setOnAction(new EventHandler<ActionEvent>() {
+
+        MenuItem lastItem = new MenuItem("上一曲");
+        lastItem.setOnAction(new EventHandler<ActionEvent>() {
+            public void handle(ActionEvent event) {
+                playManager.playLast();
+            }
+        });
+
+        MenuItem playCloseItem = new MenuItem("播放/停止");
+        playCloseItem.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent event) {
                 onPlayClick();
             }
         });
+
+        MenuItem nextItem = new MenuItem("下一曲");
+        nextItem.setOnAction(new EventHandler<ActionEvent>() {
+            public void handle(ActionEvent event) {
+                playManager.playNext();
+            }
+        });
+
+        ToggleGroup toggleGroup = new ToggleGroup();
+
+        RadioMenuItem singleItem = new RadioMenuItem("单曲循环");
+        singleItem.setOnAction(new EventHandler<ActionEvent>() {
+            public void handle(ActionEvent event) {
+                playManager.setPlayType(PlayManager.PlayType.SINGLE);
+
+            }
+        });
+
+        singleItem.setToggleGroup(toggleGroup);
+
+        RadioMenuItem shunItem = new RadioMenuItem("顺序播放");
+        shunItem.setOnAction(new EventHandler<ActionEvent>() {
+            public void handle(ActionEvent event) {
+                playManager.setPlayType(PlayManager.PlayType.RECYCLE);
+            }
+        });
+        shunItem.setToggleGroup(toggleGroup);
+
+        RadioMenuItem suijiItem = new RadioMenuItem("随机播放");
+        suijiItem.setOnAction(new EventHandler<ActionEvent>() {
+            public void handle(ActionEvent event) {
+                playManager.setPlayType(PlayManager.PlayType.RADOM);
+            }
+        });
+        suijiItem.setToggleGroup(toggleGroup);
+
+        playMenu.getItems().addAll(lastItem, playCloseItem, nextItem, new SeparatorMenuItem(), singleItem, shunItem, suijiItem);
         menuBar.getMenus().addAll(playMenu);
 
     }

@@ -1,15 +1,10 @@
 package com.music.read;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import javax.sound.sampled.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 
 /**
  * Created by xupanpan on 01/11/2017.
@@ -38,7 +33,7 @@ public class MusicPlayer {
     public void play(PlayStateListener listener) {
 
         MP3Info currentPlayInfo = DataManager.getInstans().getCurrentPlayInfo();
-        if (currentPlayInfo == null || currentPlayInfo.mp3File == null || currentPlayInfo.mp3File.exists()) {
+        if (currentPlayInfo == null || currentPlayInfo.mp3File == null || !currentPlayInfo.mp3File.exists() || currentPlayInfo.time <= 0) {
             return;
         }
 
