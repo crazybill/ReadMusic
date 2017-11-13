@@ -1,5 +1,8 @@
 package com.music.read;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import javax.sound.sampled.*;
 import java.io.File;
 import java.io.IOException;
@@ -35,6 +38,9 @@ public class MusicPlayer {
     public void play(PlayStateListener listener) {
 
         MP3Info currentPlayInfo = DataManager.getInstans().getCurrentPlayInfo();
+        if (currentPlayInfo == null || currentPlayInfo.mp3File == null || currentPlayInfo.mp3File.exists()) {
+            return;
+        }
 
         playMP3(currentPlayInfo.mp3File, listener);
     }
