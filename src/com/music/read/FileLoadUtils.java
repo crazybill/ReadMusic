@@ -9,7 +9,7 @@ public class FileLoadUtils {
 
     public static File getLocalPath() {
 
-        File file = new File(System.getProperty("user.home") + "/.MusicTool/config/");
+        File file = new File(System.getProperty("user.home") + "/.MusicOcean/config/");
         if (!file.exists()) {
             file.mkdirs();
         }

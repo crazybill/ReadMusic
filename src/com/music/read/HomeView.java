@@ -4,6 +4,7 @@ import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXCheckBox;
 import com.jfoenix.controls.JFXListView;
 import com.jfoenix.controls.JFXTextField;
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
@@ -26,6 +27,8 @@ import javafx.util.Callback;
 import java.io.File;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * Created by xupanpan on 03/11/2017.
@@ -56,6 +59,7 @@ public class HomeView {
     public MusicFileParser musicParser;
     public PlayManager playManager;
     public FileNameEditer fileNameEditer;
+    private Config playConfig;
 
     public HomeView(Stage primaryStage) {
         this.primaryStage = primaryStage;
@@ -69,6 +73,12 @@ public class HomeView {
 
 
     public void exitApp() {
+
+        Config config = new Config();
+        config.isCheckedAll = isSelectAll;
+        config.playType = playManager.getPlayType();
+
+        PlayListManager.savePlayConfig(config);
         PlayListManager.savePlayList(DataManager.getInstans().getList());
         System.exit(0);
     }
@@ -79,6 +89,13 @@ public class HomeView {
         playManager = new PlayManager(this);
         fileNameEditer = new FileNameEditer(this);
         setCurrentPlayTitle(Main.APP_NAME);
+
+        playConfig = PlayListManager.getPlayConfig();
+        if (playConfig != null) {
+            isSelectAll = playConfig.isCheckedAll;
+            playManager.setPlayType(playConfig.playType);
+        }
+
         borderPane = new BorderPane();
         Scene scene = new Scene(borderPane, WIDTH, HIGTH);
         primaryStage.setScene(scene);
@@ -92,10 +109,19 @@ public class HomeView {
     }
 
     private void initData() {
+
         List<MP3Info> historyPlayList = PlayListManager.getHistoryPlayList();
         if (historyPlayList != null) {
             DataManager.getInstans().add2List(historyPlayList);
         }
+        new Timer().schedule(new TimerTask() {
+            @Override
+            public void run() {
+                playManager.stopAndStart();
+            }
+        }, 3000);
+
+
     }
 
     public void setCurrentPlayTitle(String title) {
@@ -260,6 +286,20 @@ public class HomeView {
             }
         });
         suijiItem.setToggleGroup(toggleGroup);
+
+        if (playConfig != null) {
+            switch (playConfig.playType) {
+                case SINGLE:
+                    singleItem.setSelected(true);
+                    break;
+                case RECYCLE:
+                    shunItem.setSelected(true);
+                    break;
+                case RADOM:
+                    suijiItem.setSelected(true);
+                    break;
+            }
+        }
 
         playMenu.getItems().addAll(lastItem, playCloseItem, nextItem, new SeparatorMenuItem(), singleItem, shunItem, suijiItem);
         menuBar.getMenus().addAll(playMenu);
