@@ -4,6 +4,8 @@ import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXCheckBox;
 import com.jfoenix.controls.JFXListView;
 import com.jfoenix.controls.JFXTextField;
+import com.sun.javafx.scene.control.skin.ListViewSkin;
+import com.sun.javafx.scene.control.skin.VirtualFlow;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -109,18 +111,25 @@ public class HomeView {
     }
 
     private void initData() {
+        new Thread(new Runnable() {
+            public void run() {
+                List<MP3Info> historyPlayList = PlayListManager.getHistoryPlayList();
+                if (historyPlayList != null) {
+                    DataManager.getInstans().add2List(historyPlayList);
+                }
+            }
+        }).start();
 
-        List<MP3Info> historyPlayList = PlayListManager.getHistoryPlayList();
-        if (historyPlayList != null) {
-            DataManager.getInstans().add2List(historyPlayList);
-        }
         new Timer().schedule(new TimerTask() {
             @Override
             public void run() {
-                playManager.stopAndStart();
+                Platform.runLater(new Runnable() {
+                    public void run() {
+                        playManager.stopAndStart();
+                    }
+                });
             }
         }, 3000);
-
 
     }
 
@@ -478,8 +487,6 @@ public class HomeView {
     private void initView() {
 
         rootView = new VBox();
-        //rootView.setPadding(new Insets(10, 10, 10, 10));
-        //  rootView.setSpacing(10);
         rootView.setAlignment(Pos.TOP_CENTER);
         rootView.setBackground(Background.EMPTY);
 
@@ -498,9 +505,9 @@ public class HomeView {
         });
         listView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<MP3Info>() {
             public void changed(ObservableValue<? extends MP3Info> observable, MP3Info oldValue, MP3Info newValue) {
-
             }
         });
+
         listView.setOnMouseClicked(new EventHandler<MouseEvent>() {
             public void handle(MouseEvent event) {
                 if (event.getButton() == MouseButton.PRIMARY) {
@@ -534,6 +541,35 @@ public class HomeView {
 
         rootView.getChildren().addAll(getHeadTitle(), listView);
     }
+
+
+    private int first = 0;
+    private int last = 0;
+
+    private void getFirstAndLast() {
+        try {
+            ListViewSkin<?> ts = (ListViewSkin<?>) listView.getSkin();
+            VirtualFlow<?> vf = (VirtualFlow<?>) ts.getChildren().get(0);
+            first = vf.getFirstVisibleCell().getIndex();
+            last = vf.getLastVisibleCell().getIndex();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public void scrollToShow() {
+        getFirstAndLast();
+        int currentPlayPosition = DataManager.getInstans().getCurrentPlayPosition();
+        if (currentPlayPosition < first || currentPlayPosition > last) {
+            listView.scrollTo(currentPlayPosition);
+        }
+    }
+
+
+    private void showNotification() {
+
+    }
+
 
     private HBox getHeadTitle() {
         HBox itemView = new HBox(10);
@@ -585,8 +621,8 @@ public class HomeView {
             public void handle(MouseEvent event) {
                 if (event.getButton() == MouseButton.PRIMARY) {
                     if (event.getClickCount() == 2) {
-                        int currentPlayPosition = DataManager.getInstans().getCurrentPlayPosition();
-                        listView.scrollTo(currentPlayPosition);
+
+                        scrollToShow();
                     }
                 }
             }
@@ -648,7 +684,7 @@ public class HomeView {
         return imageView1;
     }
 
-    private void onPlayClick() {
+    public void onPlayClick() {
 
         if (DataManager.getInstans().isListEmpty()) return;
 

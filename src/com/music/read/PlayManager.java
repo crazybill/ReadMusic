@@ -70,13 +70,14 @@ public class PlayManager {
         }
 
         playMusic();
-        homeView.listView.scrollTo(DataManager.getInstans().getCurrentPlayPosition());
+        homeView.scrollToShow();
     }
 
     public void playNext() {
         isUserControl = true;
         DataManager.getInstans().setPlayNextPosition();
         playMusic();
+        homeView.scrollToShow();
     }
 
 
@@ -84,6 +85,7 @@ public class PlayManager {
         isUserControl = true;
         DataManager.getInstans().setPlayLastPosition();
         playMusic();
+        homeView.scrollToShow();
     }
 
     public void stopAndStart() {
@@ -95,6 +97,7 @@ public class PlayManager {
         } else {
             playMusic();
             homeView.setButtonPlay();
+            homeView.scrollToShow();
         }
     }
 
@@ -111,7 +114,7 @@ public class PlayManager {
                 public void run() {
                     MP3Info currentPlayInfo = DataManager.getInstans().getCurrentPlayInfo();
                     homeView.setButtonStop();
-                    homeView.setCurrentPlayTitle((DataManager.getInstans().getCurrentPlayPosition() + 1) + " # " + currentPlayInfo.fileName + "   " + currentPlayInfo.mp3File.getPath());
+                    homeView.setCurrentPlayTitle((DataManager.getInstans().getCurrentPlayPosition() + 1) + " / " + DataManager.getInstans().getListSize() + " # " + currentPlayInfo.fileName + "   " + currentPlayInfo.mp3File.getPath());
                 }
             });
         }

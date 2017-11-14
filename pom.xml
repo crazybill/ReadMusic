@@ -19,6 +19,11 @@
             <artifactId>jflac-codec</artifactId>
             <version>1.5.2</version>
         </dependency>
+        <dependency>
+            <groupId>org.controlsfx</groupId>
+            <artifactId>controlsfx</artifactId>
+            <version>9.0.0</version>
+        </dependency>
     </dependencies>
 
 </project>

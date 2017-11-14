@@ -36,6 +36,9 @@ public class Main extends Application {
         java.awt.MenuItem openItem = new java.awt.MenuItem("显示");
         java.awt.MenuItem hideItem = new java.awt.MenuItem("最小化");
         java.awt.MenuItem quitItem = new java.awt.MenuItem("退出");
+        MenuItem last = new MenuItem("上一首");
+        MenuItem stop = new MenuItem("暂停/播放");
+        MenuItem next = new MenuItem("下一首");
 
         ActionListener acl = new ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent e) {
@@ -46,29 +49,43 @@ public class Main extends Application {
                     SystemTray.getSystemTray().remove(trayIcon);
                     homeView.exitApp();
                     return;
-                }
-                if (item.getLabel().equals("显示")) {
+                } else if (item.getLabel().equals("显示")) {
                     Platform.runLater(new Runnable() {
                         public void run() {
                             stage.show();
                         }
                     });
-                }
-                if (item.getLabel().equals("最小化")) {
+                } else if (item.getLabel().equals("最小化")) {
                     Platform.runLater(new Runnable() {
                         public void run() {
                             stage.hide();
                         }
                     });
+                } else if (item.getLabel().equals("上一首")) {
+                    homeView.playManager.playLast();
+
+                } else if (item.getLabel().equals("暂停/播放")) {
+                    homeView.onPlayClick();
+
+                } else if (item.getLabel().equals("下一首")) {
+                    homeView.playManager.playNext();
                 }
             }
         };
         openItem.addActionListener(acl);
         quitItem.addActionListener(acl);
         hideItem.addActionListener(acl);
+        last.addActionListener(acl);
+        stop.addActionListener(acl);
+        next.addActionListener(acl);
+        popupMenu.add(last);
+        popupMenu.add(stop);
+        popupMenu.add(next);
+        popupMenu.addSeparator();
         popupMenu.add(openItem);
         popupMenu.add(hideItem);
         popupMenu.add(quitItem);
+
         try {
             SystemTray tray = SystemTray.getSystemTray();
             BufferedImage image = ImageIO.read(Main.class.getClass()
