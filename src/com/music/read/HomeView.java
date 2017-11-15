@@ -230,6 +230,11 @@ public class HomeView {
         MenuItem aboutItem = new MenuItem("关于");
         aboutItem.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent event) {
+
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setHeaderText("关于" + Main.APP_NAME);
+                alert.setContentText("当前版本：" + Main.APP_VERSION);
+                alert.show();
             }
         });
 

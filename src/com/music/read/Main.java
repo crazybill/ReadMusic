@@ -16,6 +16,7 @@ import java.awt.image.BufferedImage;
  */
 public class Main extends Application {
     public static final String APP_NAME = "MusicOcean";
+    public static final String APP_VERSION = "1.0";
     private TrayIcon trayIcon;
     private HomeView homeView;
 
