@@ -70,6 +70,8 @@ public class MusicFileParser {
             for (File ff : files) {
                 loadFile(ff);
             }
+
+            PlayListManager.savePlayList(DataManager.getInstans().getList());
         }
     }
 

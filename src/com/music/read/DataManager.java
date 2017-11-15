@@ -44,12 +44,15 @@ public class DataManager {
 
     public synchronized void clearList() {
         list.clear();
+        PlayListManager.savePlayList(list);
     }
 
     public synchronized void remove(MP3Info mp3Info) {
         if (mp3Info != null) {
             list.remove(mp3Info);
+            PlayListManager.savePlayList(list);
         }
+
     }
 
     public synchronized void setAllCheckStatus(boolean isCheck) {
@@ -76,11 +79,15 @@ public class DataManager {
                 list.remove(info);
             }
         }
+
+        PlayListManager.savePlayList(list);
+
         return isPlayCurrent;
     }
 
     public synchronized void removeMP3Info(MP3Info info) {
         list.remove(info);
+        PlayListManager.savePlayList(list);
     }
 
     public synchronized int getCurrentPlayPosition() {

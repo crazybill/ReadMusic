@@ -39,16 +39,23 @@ public class PlayListManager {
     }
 
 
-    public static void savePlayList(List<MP3Info> list) {
+    public static void savePlayList(final List<MP3Info> list) {
         if (list != null) {
-            try {
-                File f = new File(FileLoadUtils.getLocalPath(), "play_list.json");
-                FileOutputStream fos = new FileOutputStream(f);
-                fos.write(GsonUtils.gson.toJson(list).getBytes());
-                fos.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+
+            new Thread(new Runnable() {
+                public void run() {
+                    try {
+                        File f = new File(FileLoadUtils.getLocalPath(), "play_list.json");
+                        FileOutputStream fos = new FileOutputStream(f);
+                        fos.write(GsonUtils.gson.toJson(list).getBytes("UTF-8"));
+                        fos.close();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }).start();
+
+
         }
 
     }
@@ -59,7 +66,7 @@ public class PlayListManager {
             try {
                 File f = new File(FileLoadUtils.getLocalPath(), "config.json");
                 FileOutputStream fos = new FileOutputStream(f);
-                fos.write(GsonUtils.gson.toJson(config).getBytes());
+                fos.write(GsonUtils.gson.toJson(config).getBytes("UTF-8"));
                 fos.close();
             } catch (Exception e) {
                 e.printStackTrace();

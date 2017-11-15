@@ -51,7 +51,7 @@ public class FileLoadUtils {
         if (file != null && str != null) {
             try {
                 FileOutputStream fos = new FileOutputStream(file);
-                fos.write(str.getBytes());
+                fos.write(str.getBytes("UTF-8"));
                 fos.close();
             } catch (Exception e) {
                 e.printStackTrace();

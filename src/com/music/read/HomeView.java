@@ -6,6 +6,7 @@ import com.jfoenix.controls.JFXListView;
 import com.jfoenix.controls.JFXTextField;
 import com.sun.javafx.scene.control.skin.ListViewSkin;
 import com.sun.javafx.scene.control.skin.VirtualFlow;
+import com.sun.org.apache.bcel.internal.generic.DADD;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -552,6 +553,9 @@ public class HomeView {
     private int last = 0;
 
     private void getFirstAndLast() {
+        if (DataManager.getInstans().isListEmpty()) {
+            return;
+        }
         try {
             ListViewSkin<?> ts = (ListViewSkin<?>) listView.getSkin();
             VirtualFlow<?> vf = (VirtualFlow<?>) ts.getChildren().get(0);

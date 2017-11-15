@@ -35,6 +35,7 @@ proguard/
 
 #Android Studio
 .idea
+classes
 
 app/app.iml
 AppMaker.iml
