@@ -46,7 +46,7 @@ public class PlayManager {
 
 
     public void play(MP3Info info) {
-        if (info == null || !info.mp3File.exists()) {
+        if (info == null || info.getMusicFile() == null) {
             return;
         }
 
@@ -114,7 +114,7 @@ public class PlayManager {
                 public void run() {
                     MP3Info currentPlayInfo = DataManager.getInstans().getCurrentPlayInfo();
                     homeView.setButtonStop();
-                    homeView.setCurrentPlayTitle((DataManager.getInstans().getCurrentPlayPosition() + 1) + " / " + DataManager.getInstans().getListSize() + " # " + currentPlayInfo.fileName + "   " + currentPlayInfo.mp3File.getPath());
+                    homeView.setCurrentPlayTitle((DataManager.getInstans().getCurrentPlayPosition() + 1) + " / " + DataManager.getInstans().getListSize() + " # " + currentPlayInfo.fileName + "   " + currentPlayInfo.filePath);
                 }
             });
         }

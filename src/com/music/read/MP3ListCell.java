@@ -71,11 +71,12 @@ public class MP3ListCell extends ListCell<MP3Info> {
         fileItem.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent event) {
                 MP3Info selectedItem = getListView().getSelectionModel().getSelectedItem();
-                if (!selectedItem.mp3File.exists()) {
+
+                File musicFile = selectedItem.getMusicFile();
+                if (musicFile == null) {
                     return;
                 }
-                File mp3File = selectedItem.mp3File;
-                File parentFile = mp3File.getParentFile();
+                File parentFile = musicFile.getParentFile();
 
                 try {
                     java.awt.Desktop.getDesktop().open(new File(parentFile, "/"));
@@ -91,54 +92,69 @@ public class MP3ListCell extends ListCell<MP3Info> {
 
     @Override
     protected void updateItem(MP3Info item, boolean empty) {
+        super.updateItem(item, empty);
+
         if (!empty && item != null) {
-            setGraphic(getItemView(item));
+            updateView(item);
+            setGraphic(hBox);
         } else {
             setGraphic(null);
         }
-        super.updateItem(item, empty);
+
     }
 
+    private final HBox hBox = createView();
 
-    public HBox getItemView(final MP3Info info) {
+    private JFXCheckBox cb;
+    private Label index, name, title, artist, album, time;
 
+
+    public HBox createView() {
         HBox itemView = new HBox(10);
         itemView.setAlignment(Pos.CENTER_LEFT);
-        JFXCheckBox cb = new JFXCheckBox();
+        cb = new JFXCheckBox();
+        index = new Label();
+        index.setPrefWidth(25);
+
+        name = new Label();
+        name.setWrapText(true);
+        name.setPrefWidth(200);
+
+        title = new Label();
+        title.setWrapText(true);
+        title.setPrefWidth(140);
+        artist = new Label();
+        artist.setWrapText(true);
+        artist.setPrefWidth(80);
+        album = new Label();
+        album.setWrapText(true);
+        album.setPrefWidth(160);
+        time = new Label();
+        time.setWrapText(true);
+        time.setPrefWidth(40);
+        Separator s1 = new Separator(Orientation.VERTICAL);
+        Separator s2 = new Separator(Orientation.VERTICAL);
+        Separator s3 = new Separator(Orientation.VERTICAL);
+        Separator s4 = new Separator(Orientation.VERTICAL);
+        itemView.getChildren().addAll(cb, index, name, s1, title, s2, artist, s3, album, s4, time);
+        return itemView;
+
+    }
+
+    private void updateView(final MP3Info info) {
+
         cb.setSelected(info.isChecked);
         cb.selectedProperty().addListener(new ChangeListener<Boolean>() {
             public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
                 info.isChecked = newValue;
             }
         });
-
-
-        Label index = new Label(String.valueOf(getIndex() + 1));
-        index.setPrefWidth(25);
-
-        Label name = new Label(info.fileName);
-        name.setWrapText(true);
-        name.setPrefWidth(200);
-
-        Label title = new Label(info.title);
-        title.setWrapText(true);
-        title.setPrefWidth(140);
-        Label artist = new Label(info.artist);
-        artist.setWrapText(true);
-        artist.setPrefWidth(80);
-        Label album = new Label(info.album);
-        album.setWrapText(true);
-        album.setPrefWidth(160);
-        Label time = new Label(Utils.getMusicTime(info.time));
-        time.setWrapText(true);
-        time.setPrefWidth(40);
-
-        Separator s1 = new Separator(Orientation.VERTICAL);
-        Separator s2 = new Separator(Orientation.VERTICAL);
-        Separator s3 = new Separator(Orientation.VERTICAL);
-        Separator s4 = new Separator(Orientation.VERTICAL);
-
-        itemView.getChildren().addAll(cb, index, name, s1, title, s2, artist, s3, album, s4, time);
+        index.setText(String.valueOf(getIndex() + 1));
+        name.setText(info.fileName);
+        title.setText(info.title);
+        artist.setText(info.artist);
+        album.setText(info.album);
+        time.setText(Utils.getMusicTime(info.time));
 
         if (info.isPlaying) {
             setColorPlaying(index);
@@ -155,16 +171,14 @@ public class MP3ListCell extends ListCell<MP3Info> {
             setColorDef(album);
             setColorDef(time);
         }
-
-        return itemView;
-
     }
 
-    private void setColorPlaying(Label label) {
+
+    private static void setColorPlaying(Label label) {
         label.setTextFill(Color.LIGHTSKYBLUE);
     }
 
-    private void setColorDef(Label label) {
+    private static void setColorDef(Label label) {
         label.setTextFill(Color.BLACK);
     }
 

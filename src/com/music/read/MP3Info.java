@@ -15,9 +15,18 @@ public class MP3Info {
     public String genre = "";
     public int time;
 
-    public File mp3File;
+    public String filePath;
     public boolean isChecked;
-
     public boolean isPlaying;
 
+    public File getMusicFile() {
+        if (TextUtils.isEmpty(filePath)) {
+            return null;
+        }
+        File file = new File(filePath);
+        if (!file.exists()) {
+            return null;
+        }
+        return file;
+    }
 }

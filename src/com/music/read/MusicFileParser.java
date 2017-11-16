@@ -60,7 +60,7 @@ public class MusicFileParser {
                 MP3Info bean = new MP3Info();
                 bean.isChecked = main.isSelectAll;
                 bean.fileName = name;
-                bean.mp3File = f;
+                bean.filePath = f.getPath();
                 if (parseMP3Info(bean)) {
                     updateLoad(bean);
                 }
@@ -91,7 +91,7 @@ public class MusicFileParser {
     private boolean parseMP3Info(MP3Info bean) {
 
         try {
-            AudioFile read = AudioFileIO.read(bean.mp3File);
+            AudioFile read = AudioFileIO.read(bean.getMusicFile());
             AudioHeader audioHeader = read.getAudioHeader();
             bean.time = audioHeader.getTrackLength();
             Tag tag = read.getTag();
@@ -175,7 +175,7 @@ public class MusicFileParser {
     private void fixMP3Info(MP3Info bean) {
 
         try {
-            MP3File mp3File = (MP3File) AudioFileIO.read(bean.mp3File);
+            MP3File mp3File = (MP3File) AudioFileIO.read(bean.getMusicFile());
             Tag tag = mp3File.getTag();
             if (tag != null) {
 

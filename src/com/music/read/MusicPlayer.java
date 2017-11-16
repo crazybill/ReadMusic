@@ -40,9 +40,16 @@ public class MusicPlayer {
     public synchronized void play(PlayStateListener listener) {
 
         MP3Info currentPlayInfo = DataManager.getInstans().getCurrentPlayInfo();
-        if (currentPlayInfo == null || currentPlayInfo.mp3File == null || !currentPlayInfo.mp3File.exists() || currentPlayInfo.time <= 0) {
+        if (currentPlayInfo == null) {
             return;
         }
+
+        File musicFile = currentPlayInfo.getMusicFile();
+
+        if (musicFile == null || currentPlayInfo.time <= 0) {
+            return;
+        }
+
         this.currentPlayInfo = currentPlayInfo;
         isFlac = currentPlayInfo.fileName.endsWith(".flac");
         this.listener = listener;
@@ -50,7 +57,7 @@ public class MusicPlayer {
         if (isPlaying()) {
             isPlaying = false;
         }
-        this.file = currentPlayInfo.mp3File;
+        this.file = musicFile;
 
         playMP3();
     }
@@ -59,8 +66,8 @@ public class MusicPlayer {
         executorService.submit(runnable);
     }
 
-    public boolean isPlaying() {
-        return line != null && line.isOpen() && line.isRunning();
+    public synchronized boolean isPlaying() {
+        return isPlaying;
     }
 
     private LineListener mLineListener = new LineListener() {
@@ -109,7 +116,7 @@ public class MusicPlayer {
                     LogCat.i("2.line start!");
                     line.start();
                     startTimer();
-                    byte[] buffer = new byte[65536];
+                    byte[] buffer = new byte[2048];
                     int bytesRead = -1;
                     audioInputStream = AudioSystem.getAudioInputStream(outFormat, in);
                     while (isPlaying && (bytesRead = audioInputStream.read(buffer)) != -1) {
@@ -163,6 +170,8 @@ public class MusicPlayer {
                 e.printStackTrace();
             }
         }
+
+        System.gc();
     }
 
     private Timer timer;
@@ -177,7 +186,7 @@ public class MusicPlayer {
                 if (isPlaying) {
                     timePosition++;
                     if (isFlac) {
-                        if (timePosition == (currentPlayInfo.time -2)) {
+                        if (timePosition == (currentPlayInfo.time - 2)) {
                             LogCat.i("flac file unclosed, timer close it!!!");
                             closePlay();
                         }

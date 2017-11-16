@@ -41,15 +41,16 @@ public class FileNameEditer {
                     fileName = substring + textStr + substring2;
                 }
 
-                mp3Info.fileName = fileName;
-
-                File newNameFile = new File(mp3Info.mp3File.getParent(), fileName);
-                if (!newNameFile.exists()) {
-                    mp3Info.mp3File.renameTo(newNameFile);
-                    mp3Info.mp3File = newNameFile;
+                File musicFile = mp3Info.getMusicFile();
+                if (musicFile == null) {
+                    continue;
                 }
-
-
+                File newNameFile = new File(musicFile.getParent(), fileName);
+                if (!newNameFile.exists()) {
+                    musicFile.renameTo(newNameFile);
+                    mp3Info.filePath = newNameFile.getPath();
+                    mp3Info.fileName = fileName;
+                }
             }
         }
         homeView.listView.setItems(null);
@@ -70,15 +71,16 @@ public class FileNameEditer {
             if (mp3Info.isChecked) {
                 String fileName = mp3Info.fileName;
                 if (fileName.contains(textBefor)) {
-
+                    File musicFile = mp3Info.getMusicFile();
+                    if (musicFile == null) {
+                        continue;
+                    }
                     String replace = fileName.replace(textBefor, textAfter);
-                    mp3Info.fileName = replace;
-
-                    File newNameFile = new File(mp3Info.mp3File.getParent(), replace);
+                    File newNameFile = new File(musicFile.getParent(), replace);
                     if (!newNameFile.exists()) {
-                        mp3Info.mp3File.renameTo(newNameFile);
-                        mp3Info.mp3File = newNameFile;
-
+                        musicFile.renameTo(newNameFile);
+                        mp3Info.filePath = newNameFile.getPath();
+                        mp3Info.fileName = replace;
                     }
                 }
             }
