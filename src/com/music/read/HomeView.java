@@ -115,23 +115,21 @@ public class HomeView {
         new Thread(new Runnable() {
             public void run() {
                 List<MP3Info> historyPlayList = PlayListManager.getHistoryPlayList();
-                if (historyPlayList != null) {
+                if (historyPlayList != null && !historyPlayList.isEmpty()) {
                     DataManager.getInstans().add2List(historyPlayList);
+                    new Timer().schedule(new TimerTask() {
+                        @Override
+                        public void run() {
+                            Platform.runLater(new Runnable() {
+                                public void run() {
+                                    playManager.stopAndStart();
+                                }
+                            });
+                        }
+                    }, 3000);
                 }
             }
         }).start();
-
-        new Timer().schedule(new TimerTask() {
-            @Override
-            public void run() {
-                Platform.runLater(new Runnable() {
-                    public void run() {
-                        playManager.stopAndStart();
-                    }
-                });
-            }
-        }, 3000);
-
     }
 
     public void setCurrentPlayTitle(String title) {

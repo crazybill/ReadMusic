@@ -39,9 +39,9 @@ public class MusicFileParser {
                     File f = files.get(i);
                     loadFile(f);
                 }
-
                 Platform.runLater(new Runnable() {
                     public void run() {
+                        PlayListManager.savePlayList(DataManager.getInstans().getList());
                         alert.getDialogPane().getButtonTypes().add(ButtonType.OK);
                         alert.close();
                     }
@@ -62,7 +62,7 @@ public class MusicFileParser {
                 bean.fileName = name;
                 bean.mp3File = f;
                 if (parseMP3Info(bean)) {
-                    updateLoad(bean, "正加载：" + name);
+                    updateLoad(bean);
                 }
             }
         } else {
@@ -70,16 +70,14 @@ public class MusicFileParser {
             for (File ff : files) {
                 loadFile(ff);
             }
-
-            PlayListManager.savePlayList(DataManager.getInstans().getList());
         }
     }
 
-    public void updateLoad(final MP3Info bean, final String msg) {
+    public void updateLoad(final MP3Info bean) {
         Platform.runLater(new Runnable() {
             public void run() {
                 DataManager.getInstans().add2List(bean);
-                alert.setContentText(msg);
+                alert.setContentText("正加载：" + bean.fileName);
             }
         });
     }
