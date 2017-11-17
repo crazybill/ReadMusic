@@ -92,13 +92,10 @@ public class MusicPlayer {
     };
 
 
-    private SourceDataLine line;
-    private AudioInputStream in;
-    private AudioInputStream audioInputStream;
-    private Runnable runnable = new Runnable() {
+    private final Runnable runnable = new Runnable() {
         public void run() {
             try {
-                in = AudioSystem.getAudioInputStream(file);
+                AudioInputStream in = AudioSystem.getAudioInputStream(file);
 
                 AudioFormat format = in.getFormat();
                 int ch = format.getChannels();
@@ -106,7 +103,7 @@ public class MusicPlayer {
                 AudioFormat outFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, rate, 16, ch, ch * 2, rate, false);
 
                 DataLine.Info info = new DataLine.Info(SourceDataLine.class, outFormat);
-                line = (SourceDataLine) AudioSystem.getLine(info);
+                SourceDataLine line = (SourceDataLine) AudioSystem.getLine(info);
                 line.addLineListener(mLineListener);
 
                 if (line != null) {
@@ -118,7 +115,7 @@ public class MusicPlayer {
                     startTimer();
                     byte[] buffer = new byte[2048];
                     int bytesRead = -1;
-                    audioInputStream = AudioSystem.getAudioInputStream(outFormat, in);
+                    AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(outFormat, in);
                     while (isPlaying && (bytesRead = audioInputStream.read(buffer)) != -1) {
                         line.write(buffer, 0, bytesRead);
                         //LogCat.i("playing.......");
@@ -127,7 +124,7 @@ public class MusicPlayer {
                     line.drain();
                     isPlaying = false;
                     stopTimer();
-                    playEndClose();
+                    playEndClose(line, in, audioInputStream);
                 }
 
             } catch (Exception e) {
@@ -144,31 +141,22 @@ public class MusicPlayer {
     }
 
 
-    private void playEndClose() {
+    private void playEndClose(SourceDataLine line, AudioInputStream in, AudioInputStream audioInputStream) {
 
-        if (line != null) {
-            LogCat.i("5.line stop!");
-            line.stop();
-            LogCat.i("6.line close!");
-            line.close();
-            line = null;
-        }
-        if (in != null) {
-            try {
-                in.close();
-                in = null;
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        LogCat.i("5.line stop!");
+        line.stop();
+        LogCat.i("6.line close!");
+        line.close();
+        try {
+            in.close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
-        if (audioInputStream != null) {
-            try {
-                audioInputStream.close();
-                audioInputStream = null;
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        try {
+            audioInputStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
         System.gc();

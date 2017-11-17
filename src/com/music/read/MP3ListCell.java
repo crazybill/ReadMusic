@@ -19,22 +19,27 @@ import java.io.IOException;
  */
 public class MP3ListCell extends ListCell<MP3Info> {
     private HomeView homeView;
+    private HBox hBox = createView();
+    private JFXCheckBox cb;
+    private Label index, name, title, artist, album, time;
+    private ContextMenu contextMenu = getCM();
+
+    private ChangeListener<Boolean> listener = new ChangeListener<Boolean>() {
+        public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+            if (newValue) {
+                setContextMenu(null);
+            } else {
+                setContextMenu(contextMenu);
+            }
+        }
+    };
 
     public MP3ListCell(HomeView homeView) {
         this.homeView = homeView;
-        emptyProperty().addListener(new ChangeListener<Boolean>() {
-            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-                if (newValue) {
-                    setContextMenu(null);
-                } else {
-                    setContextMenu(getCM());
-                }
-            }
-        });
+        emptyProperty().addListener(listener);
     }
 
     private ContextMenu getCM() {
-
         ContextMenu contextMenu = new ContextMenu();
         MenuItem playItem = new MenuItem();
         playItem.setText("播放");
@@ -102,11 +107,6 @@ public class MP3ListCell extends ListCell<MP3Info> {
         }
 
     }
-
-    private final HBox hBox = createView();
-
-    private JFXCheckBox cb;
-    private Label index, name, title, artist, album, time;
 
 
     public HBox createView() {

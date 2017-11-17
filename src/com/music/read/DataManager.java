@@ -113,13 +113,14 @@ public class DataManager {
 
 
     public synchronized void setPlayNextRadomPosition() {
-        clearCurrentPlayPosition();
+        if(list.size()>1){
+            clearCurrentPlayPosition();
+            Random random = new Random();
+            int i = random.nextInt(list.size() - 1);
 
-        Random random = new Random();
-        int i = random.nextInt(list.size() - 1);
-
-        if (i != -1) {
-            list.get(i).isPlaying = true;
+            if (i != -1) {
+                list.get(i).isPlaying = true;
+            }
         }
 
     }

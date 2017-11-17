@@ -12,6 +12,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.event.EventType;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
@@ -180,6 +181,7 @@ public class HomeView {
                 DataManager.getInstans().clearList();
                 setCurrentPlayTitle(Main.APP_NAME);
                 playManager.closePlay();
+                listView.setUserData(null);
             }
         });
 
@@ -547,6 +549,21 @@ public class HomeView {
                 List<File> files = dragboard.getFiles();
                 if (files.size() > 0) {
                     musicParser.loadMp3Data(files);
+                }
+            }
+        });
+
+        listView.setOnKeyReleased(new EventHandler<KeyEvent>() {
+            public void handle(KeyEvent event) {
+                KeyCode code = event.getCode();
+                if (code == KeyCode.ENTER) {
+                    playManager.play(listView.getSelectionModel().getSelectedIndex());
+                } else if (code == KeyCode.SPACE) {
+                    onPlayClick();
+                } else if (code == KeyCode.RIGHT) {
+                    playManager.playNext();
+                } else if (code == KeyCode.LEFT) {
+                    playManager.playLast();
                 }
             }
         });

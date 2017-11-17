@@ -159,6 +159,11 @@ public class PlayManager {
             public void run() {
                 homeView.listView.setItems(null);
                 homeView.listView.setItems(DataManager.getInstans().getList());
+                int currentPlayPosition = DataManager.getInstans().getCurrentPlayPosition();
+                if (currentPlayPosition != -1) {
+                    homeView.listView.getSelectionModel().select(currentPlayPosition);
+                }
+
             }
         });
 
