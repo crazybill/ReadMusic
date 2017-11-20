@@ -75,9 +75,7 @@ public class PlayManager {
 
     public void playNext() {
         isUserControl = true;
-        DataManager.getInstans().setPlayNextPosition();
-        playMusic();
-        homeView.scrollToShow();
+        playNextAuto();
     }
 
 
