@@ -3,6 +3,7 @@ package com.music.read;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.image.Image;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 import javax.imageio.ImageIO;
@@ -16,8 +17,10 @@ import java.awt.image.BufferedImage;
 public class Main extends Application {
     public static final String APP_NAME = "MusicOcean";
     public static final String APP_VERSION = "1.5";
+    public static final Color blueColor = Color.valueOf("178eeb");
     private TrayIcon trayIcon;
     private HomeView homeView;
+
     public static void main(String[] args) {
         launch(args);
     }

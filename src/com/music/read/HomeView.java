@@ -23,6 +23,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
@@ -68,14 +69,11 @@ public class HomeView {
 
     public HomeView(Stage primaryStage) {
         this.primaryStage = primaryStage;
-
-
         primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
             public void handle(WindowEvent event) {
                 exitApp();
             }
         });
-
     }
 
 
@@ -105,6 +103,8 @@ public class HomeView {
 
         borderPane = new BorderPane();
         Scene scene = new Scene(borderPane, WIDTH, HIGTH);
+        scene.getStylesheets().add("/res/lisStyles.css");
+
         primaryStage.setScene(scene);
         primaryStage.show();
 
@@ -643,7 +643,7 @@ public class HomeView {
         Separator s6 = new Separator(Orientation.VERTICAL);
         playTimeLabel = new Label();
         playTimeLabel.setPrefWidth(45);
-        playTimeLabel.setTextFill(Color.LIGHTSKYBLUE);
+        playTimeLabel.setTextFill(Main.blueColor);
         playTimeLabel.setOnMouseClicked(new EventHandler<MouseEvent>() {
             public void handle(MouseEvent event) {
                 if (event.getButton() == MouseButton.PRIMARY) {
@@ -690,6 +690,8 @@ public class HomeView {
                 InputStream resourceAsStream = HomeView.class.getClass().getResourceAsStream("/res/ic_live_play.png");
                 Image im = new Image(resourceAsStream);
                 imageView = new ImageView(im);
+                imageView.setFitHeight(20);
+                imageView.setFitWidth(20);
             } catch (Exception e) {
             }
         }
@@ -704,6 +706,8 @@ public class HomeView {
                 InputStream resourceAsStream = HomeView.class.getClass().getResourceAsStream("/res/ic_live_suspend.png");
                 Image im = new Image(resourceAsStream);
                 imageView1 = new ImageView(im);
+                imageView1.setFitHeight(20);
+                imageView1.setFitWidth(20);
             } catch (Exception e) {
             }
         }

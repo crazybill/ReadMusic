@@ -24,6 +24,7 @@ public class MP3ListCell extends ListCell<MP3Info> {
     private Label index, name, title, artist, album, time;
     private ContextMenu contextMenu = getCM();
 
+
     private ChangeListener<Boolean> listener = new ChangeListener<Boolean>() {
         public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
             if (newValue) {
@@ -175,7 +176,7 @@ public class MP3ListCell extends ListCell<MP3Info> {
 
 
     private static void setColorPlaying(Label label) {
-        label.setTextFill(Color.LIGHTSKYBLUE);
+        label.setTextFill(Main.blueColor);
     }
 
     private static void setColorDef(Label label) {
