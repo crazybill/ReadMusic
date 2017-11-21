@@ -64,16 +64,11 @@ public class HomeView {
     public PlayManager playManager;
     public FileNameEditer fileNameEditer;
     private Config playConfig;
-    private Image image;
+
 
     public HomeView(Stage primaryStage) {
         this.primaryStage = primaryStage;
 
-        try {
-            image = new Image(this.getClass().getResourceAsStream("/res/icon.png"));
-            primaryStage.getIcons().add(image);
-        } catch (Exception e) {
-        }
 
         primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
             public void handle(WindowEvent event) {

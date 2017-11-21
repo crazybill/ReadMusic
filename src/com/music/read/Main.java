@@ -2,9 +2,8 @@ package com.music.read;
 
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.event.EventHandler;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -19,7 +18,6 @@ public class Main extends Application {
     public static final String APP_VERSION = "1.5";
     private TrayIcon trayIcon;
     private HomeView homeView;
-
     public static void main(String[] args) {
         launch(args);
     }
@@ -90,10 +88,13 @@ public class Main extends Application {
         try {
             SystemTray tray = SystemTray.getSystemTray();
             BufferedImage image = ImageIO.read(Main.class.getClass()
-                    .getResourceAsStream("/res/icon.png"));
+                    .getResourceAsStream("/res/icon_48.png"));
             trayIcon = new TrayIcon(image, APP_NAME, popupMenu);
             trayIcon.setToolTip(APP_NAME);
             tray.add(trayIcon);
+
+            stage.getIcons().add(new Image(this.getClass().getResourceAsStream("/res/icon_32.png")));
+
         } catch (Exception e) {
             e.printStackTrace();
         }

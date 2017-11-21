@@ -81,7 +81,18 @@ public class PlayManager {
 
     public void playLast() {
         isUserControl = true;
-        DataManager.getInstans().setPlayLastPosition();
+
+        switch (playType) {
+            case RADOM:
+                DataManager.getInstans().setPlayNextRadomPosition();
+                break;
+            case RECYCLE:
+                DataManager.getInstans().setPlayLastPosition();
+                break;
+            case SINGLE:
+
+                break;
+        }
         playMusic();
         homeView.scrollToShow();
     }
