@@ -96,7 +96,7 @@ public class Main extends Application {
             trayIcon.setToolTip(APP_NAME);
             tray.add(trayIcon);
 
-            stage.getIcons().add(new Image(this.getClass().getResourceAsStream("/res/icon_32.png")));
+            stage.getIcons().add(new Image(Main.this.getClass().getResourceAsStream("/res/icon_32.png")));
 
         } catch (Exception e) {
             e.printStackTrace();

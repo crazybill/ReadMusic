@@ -14,8 +14,11 @@ public class MP3Info {
     public String artist = "";
     public String genre = "";
     public int time;
+    public String timeShow;
+    public String size;
 
     public String filePath;
+    public String bitRate;
     public boolean isChecked;
     public boolean isPlaying;
 

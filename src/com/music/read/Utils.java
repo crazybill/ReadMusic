@@ -1,5 +1,7 @@
 package com.music.read;
 
+import java.text.DecimalFormat;
+
 /**
  * Created by xupanpan on 13/10/2017.
  */
@@ -42,9 +44,26 @@ public class Utils {
             String ss = s < 10 ? ("0" + s) : String.valueOf(s);
             return String.format(format, mm, ss);
         }
-
-
     }
 
+
+    public static String getFileSize(long sizeL) {
+        String size = "";
+        if (sizeL > 0) {
+            DecimalFormat df = new DecimalFormat("#.00");
+            if (sizeL < 1024) {
+                size = df.format((double) sizeL) + "BT";
+            } else if (sizeL < 1048576) {
+                size = df.format((double) sizeL / 1024) + "KB";
+            } else if (sizeL < 1073741824) {
+                size = df.format((double) sizeL / 1048576) + "MB";
+            } else {
+                size = df.format((double) sizeL / 1073741824) + "GB";
+            }
+        }  else {
+            size = "0kb";
+        }
+        return size;
+    }
 
 }

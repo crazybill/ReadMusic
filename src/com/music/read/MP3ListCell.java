@@ -10,6 +10,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,7 +22,7 @@ public class MP3ListCell extends ListCell<MP3Info> {
     private HomeView homeView;
     private HBox hBox = createView();
     private JFXCheckBox cb;
-    private Label index, name, title, artist, album, time;
+    private Label index, name, title, artist, album, time, size, bitRate;
     private ContextMenu contextMenu = getCM();
 
 
@@ -114,6 +115,11 @@ public class MP3ListCell extends ListCell<MP3Info> {
         HBox itemView = new HBox(10);
         itemView.setAlignment(Pos.CENTER_LEFT);
         cb = new JFXCheckBox();
+        cb.selectedProperty().addListener(new ChangeListener<Boolean>() {
+            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                info.isChecked = newValue;
+            }
+        });
         index = new Label();
         index.setPrefWidth(25);
 
@@ -133,30 +139,36 @@ public class MP3ListCell extends ListCell<MP3Info> {
         time = new Label();
         time.setWrapText(true);
         time.setPrefWidth(40);
+        size = new Label();
+        size.setWrapText(true);
+        size.setPrefWidth(50);
+        size.setFont(Font.font(11));
+        bitRate = new Label();
+        bitRate.setWrapText(true);
+        bitRate.setPrefWidth(40);
+        bitRate.setFont(Font.font(11));
         Separator s1 = new Separator(Orientation.VERTICAL);
         Separator s2 = new Separator(Orientation.VERTICAL);
         Separator s3 = new Separator(Orientation.VERTICAL);
         Separator s4 = new Separator(Orientation.VERTICAL);
-        itemView.getChildren().addAll(cb, index, name, s1, title, s2, artist, s3, album, s4, time);
+        Separator s5 = new Separator(Orientation.VERTICAL);
+        itemView.getChildren().addAll(cb, index, name, s1, title, s2, artist, s3, album, s4, time, s5, size, bitRate);
         return itemView;
 
     }
 
-    private void updateView(final MP3Info info) {
-
+    private MP3Info info;
+    private void updateView( MP3Info info) {
+        this.info = info;
         cb.setSelected(info.isChecked);
-        cb.selectedProperty().addListener(new ChangeListener<Boolean>() {
-            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-                info.isChecked = newValue;
-            }
-        });
         index.setText(String.valueOf(getIndex() + 1));
         name.setText(info.fileName);
         title.setText(info.title);
         artist.setText(info.artist);
         album.setText(info.album);
-        time.setText(Utils.getMusicTime(info.time));
-
+        time.setText(info.timeShow);
+        size.setText(info.size);
+        bitRate.setText(info.bitRate);
         if (info.isPlaying) {
             setColorPlaying(index);
             setColorPlaying(name);
@@ -164,6 +176,8 @@ public class MP3ListCell extends ListCell<MP3Info> {
             setColorPlaying(artist);
             setColorPlaying(album);
             setColorPlaying(time);
+            setColorPlaying(size);
+            setColorPlaying(bitRate);
         } else {
             setColorDef(index);
             setColorDef(name);
@@ -171,6 +185,8 @@ public class MP3ListCell extends ListCell<MP3Info> {
             setColorDef(artist);
             setColorDef(album);
             setColorDef(time);
+            setColorDef(size);
+            setColorDef(bitRate);
         }
     }
 
