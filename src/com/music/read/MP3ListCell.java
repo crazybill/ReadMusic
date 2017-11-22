@@ -110,6 +110,7 @@ public class MP3ListCell extends ListCell<MP3Info> {
 
     }
 
+    private Separator s1, s2, s3, s4, s5;
 
     public HBox createView() {
         HBox itemView = new HBox(10);
@@ -147,18 +148,19 @@ public class MP3ListCell extends ListCell<MP3Info> {
         bitRate.setWrapText(true);
         bitRate.setPrefWidth(40);
         bitRate.setFont(Font.font(11));
-        Separator s1 = new Separator(Orientation.VERTICAL);
-        Separator s2 = new Separator(Orientation.VERTICAL);
-        Separator s3 = new Separator(Orientation.VERTICAL);
-        Separator s4 = new Separator(Orientation.VERTICAL);
-        Separator s5 = new Separator(Orientation.VERTICAL);
+        s1 = new Separator(Orientation.VERTICAL);
+        s2 = new Separator(Orientation.VERTICAL);
+        s3 = new Separator(Orientation.VERTICAL);
+        s4 = new Separator(Orientation.VERTICAL);
+        s5 = new Separator(Orientation.VERTICAL);
         itemView.getChildren().addAll(cb, index, name, s1, title, s2, artist, s3, album, s4, time, s5, size, bitRate);
         return itemView;
 
     }
 
     private MP3Info info;
-    private void updateView( MP3Info info) {
+
+    private void updateView(MP3Info info) {
         this.info = info;
         cb.setSelected(info.isChecked);
         index.setText(String.valueOf(getIndex() + 1));
@@ -169,6 +171,33 @@ public class MP3ListCell extends ListCell<MP3Info> {
         time.setText(info.timeShow);
         size.setText(info.size);
         bitRate.setText(info.bitRate);
+
+        if (homeView.isShowAlbum) {
+            album.setManaged(true);
+            album.setVisible(true);
+            s4.setManaged(true);
+            s4.setVisible(true);
+        } else {
+            album.setManaged(false);
+            album.setVisible(false);
+            s4.setManaged(false);
+            s4.setVisible(false);
+        }
+
+        if (homeView.isShowSize) {
+            size.setManaged(true);
+            size.setVisible(true);
+        } else {
+            size.setManaged(false);
+            size.setVisible(false);
+        }
+        if (homeView.isShowBit) {
+            bitRate.setManaged(true);
+            bitRate.setVisible(true);
+        } else {
+            bitRate.setManaged(false);
+            bitRate.setVisible(false);
+        }
         if (info.isPlaying) {
             setColorPlaying(index);
             setColorPlaying(name);

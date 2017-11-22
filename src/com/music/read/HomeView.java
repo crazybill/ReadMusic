@@ -6,13 +6,11 @@ import com.jfoenix.controls.JFXListView;
 import com.jfoenix.controls.JFXTextField;
 import com.sun.javafx.scene.control.skin.ListViewSkin;
 import com.sun.javafx.scene.control.skin.VirtualFlow;
-import com.sun.org.apache.bcel.internal.generic.DADD;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.event.EventType;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
@@ -23,8 +21,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
-import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import javafx.util.Callback;
@@ -54,18 +50,19 @@ public class HomeView {
     private javafx.scene.control.TextField deleteAfterText;
     private javafx.scene.control.TextField text1;
     private javafx.scene.control.TextField text2;
-    private BorderPane borderPane;
-
-    private boolean isShowErrorCodeSettingView = false;
-    private boolean isShowReplaceSettingView = false;
-    private boolean isShowAddSettingView = false;
-    private MenuBar menuBar;
+    public BorderPane borderPane;
+    public boolean isShowErrorCodeSettingView = false;
+    public boolean isShowReplaceSettingView = false;
+    public boolean isShowAddSettingView = false;
 
     public MusicFileParser musicParser;
     public PlayManager playManager;
     public FileNameEditer fileNameEditer;
-    private Config playConfig;
+    public Config playConfig;
 
+    public boolean isShowAlbum = true;
+    public boolean isShowSize = true;
+    public boolean isShowBit = true;
 
     public HomeView(Stage primaryStage) {
         this.primaryStage = primaryStage;
@@ -74,18 +71,6 @@ public class HomeView {
                 exitApp();
             }
         });
-    }
-
-
-    public void exitApp() {
-
-        Config config = new Config();
-        config.isCheckedAll = isSelectAll;
-        config.playType = playManager.getPlayType();
-
-        PlayListManager.savePlayConfig(config);
-        PlayListManager.savePlayList(DataManager.getInstans().getList());
-        System.exit(0);
     }
 
 
@@ -99,6 +84,9 @@ public class HomeView {
         if (playConfig != null) {
             isSelectAll = playConfig.isCheckedAll;
             playManager.setPlayType(playConfig.playType);
+            isShowAlbum = playConfig.isCheckAlbum;
+            isShowSize = playConfig.isCheckSize;
+            isShowBit = playConfig.isCheckBit;
         }
 
         borderPane = new BorderPane();
@@ -108,12 +96,87 @@ public class HomeView {
         primaryStage.setScene(scene);
         primaryStage.show();
 
-        initMenuBar();
+        new MenuViewHelper(this).initMenuBar();
+
         initView();
         borderPane.setCenter(rootView);
 
         initData();
     }
+
+    private void initView() {
+
+        rootView = new VBox();
+        rootView.setAlignment(Pos.TOP_CENTER);
+        rootView.setBackground(Background.EMPTY);
+
+        initSettingView();
+
+        listView = new JFXListView<MP3Info>();
+        listView.setItems(DataManager.getInstans().getList());
+        listView.setEditable(true);
+        listView.setBorder(FxViewUtil.getBorder(Color.WHITE, 0, 0));
+        listView.setBackground(FxViewUtil.getBackground(Color.WHITE, 0));
+        listView.setOrientation(Orientation.VERTICAL);
+        listView.setCellFactory(new Callback<ListView<MP3Info>, ListCell<MP3Info>>() {
+            public ListCell<MP3Info> call(ListView<MP3Info> param) {
+                return new MP3ListCell(HomeView.this);
+            }
+        });
+        listView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<MP3Info>() {
+            public void changed(ObservableValue<? extends MP3Info> observable, MP3Info oldValue, MP3Info newValue) {
+            }
+        });
+
+        listView.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            public void handle(MouseEvent event) {
+                if (event.getButton() == MouseButton.PRIMARY) {
+                    if (event.getClickCount() == 2) {
+                        MP3Info selectedItem = listView.getSelectionModel().getSelectedItem();
+                        playManager.play(selectedItem);
+                    }
+                }
+            }
+        });
+
+        VBox.setVgrow(listView, Priority.ALWAYS);
+
+        listView.setOnDragOver(new EventHandler<DragEvent>() {
+            public void handle(DragEvent event) {
+                if (event.getGestureSource() != listView) {
+                    event.acceptTransferModes(TransferMode.ANY);
+                }
+            }
+        });
+
+        listView.setOnDragDropped(new EventHandler<DragEvent>() {
+            public void handle(DragEvent event) {
+                Dragboard dragboard = event.getDragboard();
+                List<File> files = dragboard.getFiles();
+                if (files.size() > 0) {
+                    musicParser.loadMp3Data(files);
+                }
+            }
+        });
+
+        listView.setOnKeyReleased(new EventHandler<KeyEvent>() {
+            public void handle(KeyEvent event) {
+                KeyCode code = event.getCode();
+                if (code == KeyCode.ENTER) {
+                    playManager.play(listView.getSelectionModel().getSelectedIndex());
+                } else if (code == KeyCode.SPACE) {
+                    onPlayClick();
+                } else if (code == KeyCode.RIGHT) {
+                    playManager.playNext();
+                } else if (code == KeyCode.LEFT) {
+                    playManager.playLast();
+                }
+            }
+        });
+
+        rootView.getChildren().addAll(getHeadTitle(), listView);
+    }
+
 
     private void initData() {
         new Thread(new Runnable() {
@@ -140,188 +203,18 @@ public class HomeView {
         primaryStage.setTitle(title);
     }
 
-    private void initMenuBar() {
+    public void exitApp() {
 
-        menuBar = new MenuBar();
-        menuBar.setUseSystemMenuBar(true);
-        Menu fileMenu = new Menu("文件");
+        Config config = new Config();
+        config.isCheckedAll = isSelectAll;
+        config.playType = playManager.getPlayType();
+        config.isCheckAlbum = isShowAlbum;
+        config.isCheckSize = isShowSize;
+        config.isCheckBit = isShowBit;
 
-        MenuItem openItem = new MenuItem("加载音乐");
-        openItem.setOnAction(new EventHandler<ActionEvent>() {
-            public void handle(ActionEvent event) {
-                FileChooser chooser = new FileChooser();
-                chooser.getExtensionFilters().addAll(
-                        new FileChooser.ExtensionFilter("All Images", "*.*")
-                );
-                List<File> files = chooser.showOpenMultipleDialog(primaryStage);
-                if (files != null) {
-                    musicParser.loadMp3Data(files);
-                }
-            }
-        });
-
-        MenuItem clearItem = new MenuItem("删除选中");
-        clearItem.setOnAction(new EventHandler<ActionEvent>() {
-            public void handle(ActionEvent event) {
-                if (DataManager.getInstans().removeSelected()) {
-                    setCurrentPlayTitle(Main.APP_NAME);
-                    playManager.closePlay();
-                }
-            }
-        });
-
-        MenuItem clearAllItem = new MenuItem("清空列表");
-        clearAllItem.setOnAction(new EventHandler<ActionEvent>() {
-            public void handle(ActionEvent event) {
-                DataManager.getInstans().clearList();
-                setCurrentPlayTitle(Main.APP_NAME);
-                playManager.closePlay();
-                listView.setUserData(null);
-            }
-        });
-
-        MenuItem exitItem = new MenuItem("退出");
-        exitItem.setOnAction(new EventHandler<ActionEvent>() {
-            public void handle(ActionEvent event) {
-                exitApp();
-            }
-        });
-
-        fileMenu.getItems().addAll(openItem, clearItem, clearAllItem, exitItem);
-
-
-        Menu editMenu = new Menu("编辑");
-
-        CheckMenuItem codeErrorItem = new CheckMenuItem("乱码分析");
-        codeErrorItem.setSelected(isShowErrorCodeSettingView);
-        codeErrorItem.selectedProperty().addListener(new ChangeListener<Boolean>() {
-            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-                isShowErrorCodeSettingView = newValue;
-                checkSettingView();
-            }
-        });
-
-
-        CheckMenuItem replaceNameItem = new CheckMenuItem("批量替换名称字符");
-        replaceNameItem.setSelected(isShowReplaceSettingView);
-        replaceNameItem.selectedProperty().addListener(new ChangeListener<Boolean>() {
-            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-                isShowReplaceSettingView = newValue;
-                checkSettingView();
-            }
-        });
-
-        CheckMenuItem addNameItem = new CheckMenuItem("批量添加名称字符");
-        addNameItem.setSelected(isShowAddSettingView);
-        addNameItem.selectedProperty().addListener(new ChangeListener<Boolean>() {
-            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-                isShowAddSettingView = newValue;
-                checkSettingView();
-
-            }
-        });
-
-
-        editMenu.getItems().addAll(codeErrorItem, replaceNameItem, addNameItem);
-
-
-        Menu helpMenu = new Menu("帮助");
-        MenuItem useInfoItem = new MenuItem("使用说明");
-        useInfoItem.setOnAction(new EventHandler<ActionEvent>() {
-            public void handle(ActionEvent event) {
-            }
-        });
-        MenuItem aboutItem = new MenuItem("关于");
-        aboutItem.setOnAction(new EventHandler<ActionEvent>() {
-            public void handle(ActionEvent event) {
-
-                Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.setHeaderText("关于" + Main.APP_NAME);
-                alert.setContentText("当前版本：" + Main.APP_VERSION);
-                alert.show();
-            }
-        });
-
-        helpMenu.getItems().addAll(useInfoItem, aboutItem);
-
-        menuBar.getMenus().addAll(fileMenu, editMenu, helpMenu);
-
-        initPlayerView();
-
-        borderPane.setTop(menuBar);
-    }
-
-
-    private void initPlayerView() {
-
-        Menu playMenu = new Menu("play");
-
-        MenuItem lastItem = new MenuItem("上一曲");
-        lastItem.setOnAction(new EventHandler<ActionEvent>() {
-            public void handle(ActionEvent event) {
-                playManager.playLast();
-            }
-        });
-
-        MenuItem playCloseItem = new MenuItem("播放/停止");
-        playCloseItem.setOnAction(new EventHandler<ActionEvent>() {
-            public void handle(ActionEvent event) {
-                onPlayClick();
-            }
-        });
-
-        MenuItem nextItem = new MenuItem("下一曲");
-        nextItem.setOnAction(new EventHandler<ActionEvent>() {
-            public void handle(ActionEvent event) {
-                playManager.playNext();
-            }
-        });
-
-        ToggleGroup toggleGroup = new ToggleGroup();
-
-        RadioMenuItem singleItem = new RadioMenuItem("单曲循环");
-        singleItem.setOnAction(new EventHandler<ActionEvent>() {
-            public void handle(ActionEvent event) {
-                playManager.setPlayType(PlayManager.PlayType.SINGLE);
-
-            }
-        });
-
-        singleItem.setToggleGroup(toggleGroup);
-
-        RadioMenuItem shunItem = new RadioMenuItem("顺序播放");
-        shunItem.setOnAction(new EventHandler<ActionEvent>() {
-            public void handle(ActionEvent event) {
-                playManager.setPlayType(PlayManager.PlayType.RECYCLE);
-            }
-        });
-        shunItem.setToggleGroup(toggleGroup);
-
-        RadioMenuItem suijiItem = new RadioMenuItem("随机播放");
-        suijiItem.setOnAction(new EventHandler<ActionEvent>() {
-            public void handle(ActionEvent event) {
-                playManager.setPlayType(PlayManager.PlayType.RADOM);
-            }
-        });
-        suijiItem.setToggleGroup(toggleGroup);
-
-        if (playConfig != null) {
-            switch (playConfig.playType) {
-                case SINGLE:
-                    singleItem.setSelected(true);
-                    break;
-                case RECYCLE:
-                    shunItem.setSelected(true);
-                    break;
-                case RADOM:
-                    suijiItem.setSelected(true);
-                    break;
-            }
-        }
-
-        playMenu.getItems().addAll(lastItem, playCloseItem, nextItem, new SeparatorMenuItem(), singleItem, shunItem, suijiItem);
-        menuBar.getMenus().addAll(playMenu);
-
+        PlayListManager.savePlayConfig(config);
+        PlayListManager.savePlayList(DataManager.getInstans().getList());
+        System.exit(0);
     }
 
 
@@ -452,7 +345,7 @@ public class HomeView {
         checkSettingView();
     }
 
-    private void checkSettingView() {
+    public void checkSettingView() {
 
         errorCodeSetting.setVisible(isShowErrorCodeSettingView);
         errorCodeSetting.setManaged(isShowErrorCodeSettingView);
@@ -493,79 +386,6 @@ public class HomeView {
 
     }
 
-    private void initView() {
-
-        rootView = new VBox();
-        rootView.setAlignment(Pos.TOP_CENTER);
-        rootView.setBackground(Background.EMPTY);
-
-        initSettingView();
-
-        listView = new JFXListView<MP3Info>();
-        listView.setItems(DataManager.getInstans().getList());
-        listView.setEditable(true);
-        listView.setBorder(FxViewUtil.getBorder(Color.WHITE, 0, 0));
-        listView.setBackground(FxViewUtil.getBackground(Color.WHITE, 0));
-        listView.setOrientation(Orientation.VERTICAL);
-        listView.setCellFactory(new Callback<ListView<MP3Info>, ListCell<MP3Info>>() {
-            public ListCell<MP3Info> call(ListView<MP3Info> param) {
-                return new MP3ListCell(HomeView.this);
-            }
-        });
-        listView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<MP3Info>() {
-            public void changed(ObservableValue<? extends MP3Info> observable, MP3Info oldValue, MP3Info newValue) {
-            }
-        });
-
-        listView.setOnMouseClicked(new EventHandler<MouseEvent>() {
-            public void handle(MouseEvent event) {
-                if (event.getButton() == MouseButton.PRIMARY) {
-                    if (event.getClickCount() == 2) {
-                        MP3Info selectedItem = listView.getSelectionModel().getSelectedItem();
-                        playManager.play(selectedItem);
-                    }
-                }
-            }
-        });
-
-        VBox.setVgrow(listView, Priority.ALWAYS);
-
-        listView.setOnDragOver(new EventHandler<DragEvent>() {
-            public void handle(DragEvent event) {
-                if (event.getGestureSource() != listView) {
-                    event.acceptTransferModes(TransferMode.ANY);
-                }
-            }
-        });
-
-        listView.setOnDragDropped(new EventHandler<DragEvent>() {
-            public void handle(DragEvent event) {
-                Dragboard dragboard = event.getDragboard();
-                List<File> files = dragboard.getFiles();
-                if (files.size() > 0) {
-                    musicParser.loadMp3Data(files);
-                }
-            }
-        });
-
-        listView.setOnKeyReleased(new EventHandler<KeyEvent>() {
-            public void handle(KeyEvent event) {
-                KeyCode code = event.getCode();
-                if (code == KeyCode.ENTER) {
-                    playManager.play(listView.getSelectionModel().getSelectedIndex());
-                } else if (code == KeyCode.SPACE) {
-                    onPlayClick();
-                } else if (code == KeyCode.RIGHT) {
-                    playManager.playNext();
-                } else if (code == KeyCode.LEFT) {
-                    playManager.playLast();
-                }
-            }
-        });
-
-        rootView.getChildren().addAll(getHeadTitle(), listView);
-    }
-
 
     private int first = 0;
     private int last = 0;
@@ -593,10 +413,14 @@ public class HomeView {
     }
 
 
-    private void showNotification() {
+    public void notifyListViewDataSetChange() {
+        listView.setItems(null);
+        listView.setItems(DataManager.getInstans().getList());
 
     }
 
+    private Label album;
+    private Separator s5;
 
     private HBox getHeadTitle() {
         HBox itemView = new HBox(10);
@@ -608,8 +432,7 @@ public class HomeView {
             public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
                 isSelectAll = newValue;
                 DataManager.getInstans().setAllCheckStatus(newValue);
-                listView.setItems(null);
-                listView.setItems(DataManager.getInstans().getList());
+                notifyListViewDataSetChange();
             }
         });
 
@@ -622,7 +445,7 @@ public class HomeView {
         title.setPrefWidth(140);
         Label artist = new Label("歌手");
         artist.setPrefWidth(80);
-        Label album = new Label("专辑名称");
+        album = new Label("专辑名称");
         album.setPrefWidth(160);
         Label time = new Label("时长");
         time.setPrefWidth(40);
@@ -630,11 +453,30 @@ public class HomeView {
         Separator s2 = new Separator(Orientation.VERTICAL);
         Separator s3 = new Separator(Orientation.VERTICAL);
         Separator s4 = new Separator(Orientation.VERTICAL);
-        Separator s5 = new Separator(Orientation.VERTICAL);
+        s5 = new Separator(Orientation.VERTICAL);
         itemView.getChildren().addAll(cb, index, name, s2, title, s3, artist, s4, album, s5, time);
         initPlayControlView(itemView);
+        setShowZhuanji(isShowAlbum);
         return itemView;
     }
+
+
+    public void setShowZhuanji(boolean isShow) {
+        isShowAlbum = isShow;
+        notifyListViewDataSetChange();
+        if (isShowAlbum) {
+            album.setManaged(true);
+            album.setVisible(true);
+            s5.setManaged(true);
+            s5.setVisible(true);
+        } else {
+            album.setManaged(false);
+            album.setVisible(false);
+            s5.setManaged(false);
+            s5.setVisible(false);
+        }
+    }
+
 
     public Label playTimeLabel;
     public Button playStop;

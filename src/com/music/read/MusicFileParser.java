@@ -6,7 +6,6 @@ import javafx.scene.control.ButtonType;
 import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
 import org.jaudiotagger.audio.AudioHeader;
-import org.jaudiotagger.audio.mp3.MP3File;
 import org.jaudiotagger.tag.FieldKey;
 import org.jaudiotagger.tag.Tag;
 
@@ -182,19 +181,15 @@ public class MusicFileParser {
             AudioFile mp3File =  AudioFileIO.read(bean.getMusicFile());
             Tag tag = mp3File.getTag();
             if (tag != null) {
-
                 tag.setField(FieldKey.TITLE, bean.title);
                 tag.setField(FieldKey.ALBUM, bean.album);
                 tag.setField(FieldKey.ARTIST, bean.artist);
                 tag.setField(FieldKey.GENRE, bean.genre);
-
             }
             mp3File.commit();
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-
     }
 
 }

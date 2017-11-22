@@ -2,10 +2,9 @@ package com.music.read;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import net.sourceforge.pinyin4j.PinyinHelper;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class DataManager {
 
@@ -113,7 +112,7 @@ public class DataManager {
 
 
     public synchronized void setPlayNextRadomPosition() {
-        if(list.size()>1){
+        if (list.size() > 1) {
             clearCurrentPlayPosition();
             Random random = new Random();
             int i = random.nextInt(list.size() - 1);
@@ -187,5 +186,162 @@ public class DataManager {
         clearCurrentPlayPosition();
         info.isPlaying = true;
     }
+
+
+    public synchronized void sortByTime() {
+        if (list.isEmpty()) {
+            return;
+        }
+
+        Collections.sort(list, new Comparator<MP3Info>() {
+            public int compare(MP3Info o1, MP3Info o2) {
+                if (o1.time > o2.time) {
+                    return 1;
+                }
+                if (o1.time < o2.time) {
+                    return -1;
+                }
+                return 0;
+            }
+        });
+    }
+
+    public synchronized void sortByMusicName() {
+        if (list.isEmpty()) {
+            return;
+        }
+
+        Collections.sort(list, new Comparator<MP3Info>() {
+            public int compare(MP3Info o1, MP3Info o2) {
+                char c1, c2;
+                if (o1.title == null || o1.title.length() == 0) {
+                    c1 = 'a';
+                } else {
+                    c1 = o1.title.charAt(0);
+                }
+                if (o2.title == null || o2.title.length() == 0) {
+                    c2 = 'a';
+                } else {
+                    c2 = o2.title.charAt(0);
+                }
+
+                String[] strings = PinyinHelper.toHanyuPinyinStringArray(c1);
+                String[] strings1 = PinyinHelper.toHanyuPinyinStringArray(c2);
+
+
+                String s1;
+                String s2;
+
+                if (strings == null || strings.length == 0) {
+                    s1 = String.valueOf(c1);
+                } else {
+                    s1 = concatPinyinStringArray(strings);
+                }
+                if (strings1 == null || strings1.length == 0) {
+                    s2 = String.valueOf(c2);
+                } else {
+                    s2 = concatPinyinStringArray(strings1);
+                }
+
+                return s1.compareTo(s2);
+            }
+        });
+
+
+    }
+
+    public synchronized void sortByFileName() {
+        if (list.isEmpty()) {
+            return;
+        }
+
+        Collections.sort(list, new Comparator<MP3Info>() {
+            public int compare(MP3Info o1, MP3Info o2) {
+
+                char c1 = o1.fileName.charAt(0);
+                char c2 = o2.fileName.charAt(0);
+
+                String[] strings = PinyinHelper.toHanyuPinyinStringArray(c1);
+                String[] strings1 = PinyinHelper.toHanyuPinyinStringArray(c2);
+
+
+                String s1;
+                String s2;
+
+                if (strings == null || strings.length == 0) {
+                    s1 = String.valueOf(c1);
+                } else {
+                    s1 = concatPinyinStringArray(strings);
+                }
+                if (strings1 == null || strings1.length == 0) {
+                    s2 = String.valueOf(c2);
+                } else {
+                    s2 = concatPinyinStringArray(strings1);
+                }
+
+                return s1.compareTo(s2);
+            }
+        });
+
+
+    }
+
+    private String concatPinyinStringArray(String[] pinyinArray) {
+        StringBuffer pinyinSbf = new StringBuffer();
+        if ((pinyinArray != null) && (pinyinArray.length > 0)) {
+            for (int i = 0; i < pinyinArray.length; i++) {
+                pinyinSbf.append(pinyinArray[i]);
+            }
+        }
+
+        String s = pinyinSbf.toString();
+
+        return s;
+    }
+
+    public synchronized void sortBySingerName() {
+        if (list.isEmpty()) {
+            return;
+        }
+        Collections.sort(list, new Comparator<MP3Info>() {
+            public int compare(MP3Info o1, MP3Info o2) {
+
+                char c1, c2;
+                if (o1.artist == null || o1.artist.length() == 0) {
+                    c1 = 'a';
+                } else {
+                    c1 = o1.artist.charAt(0);
+                }
+                if (o2.artist == null || o2.artist.length() == 0) {
+                    c2 = 'a';
+                } else {
+                    c2 = o2.artist.charAt(0);
+                }
+
+                String[] strings = PinyinHelper.toHanyuPinyinStringArray(c1);
+                String[] strings1 = PinyinHelper.toHanyuPinyinStringArray(c2);
+
+
+                String s1;
+                String s2;
+
+                if (strings == null || strings.length == 0) {
+                    s1 = String.valueOf(c1);
+                } else {
+                    s1 = concatPinyinStringArray(strings);
+                }
+                if (strings1 == null || strings1.length == 0) {
+                    s2 = String.valueOf(c2);
+                } else {
+                    s2 = concatPinyinStringArray(strings1);
+                }
+
+                return s1.compareTo(s2);
+            }
+        });
+
+
+    }
+
 
 }
