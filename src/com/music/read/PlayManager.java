@@ -11,7 +11,7 @@ public class PlayManager {
     private boolean isUserControl;
 
     public enum PlayType {
-        SINGLE, RECYCLE, RADOM
+        SINGLE, RECYCLE, RANDOM
     }
 
     private PlayType playType = PlayType.RECYCLE;
@@ -58,7 +58,7 @@ public class PlayManager {
     public void playNextAuto() {
 
         switch (playType) {
-            case RADOM:
+            case RANDOM:
                 DataManager.getInstans().setPlayNextRadomPosition();
                 break;
             case RECYCLE:
@@ -83,7 +83,7 @@ public class PlayManager {
         isUserControl = true;
 
         switch (playType) {
-            case RADOM:
+            case RANDOM:
                 DataManager.getInstans().setPlayNextRadomPosition();
                 break;
             case RECYCLE:

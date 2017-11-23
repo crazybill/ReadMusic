@@ -199,7 +199,7 @@ public class MenuViewHelper {
         RadioMenuItem suijiItem = new RadioMenuItem("随机播放");
         suijiItem.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent event) {
-                playManager.setPlayType(PlayManager.PlayType.RADOM);
+                playManager.setPlayType(PlayManager.PlayType.RANDOM);
             }
         });
         suijiItem.setToggleGroup(toggleGroup);
@@ -212,7 +212,7 @@ public class MenuViewHelper {
                 case RECYCLE:
                     shunItem.setSelected(true);
                     break;
-                case RADOM:
+                case RANDOM:
                     suijiItem.setSelected(true);
                     break;
             }
@@ -231,7 +231,7 @@ public class MenuViewHelper {
         RadioMenuItem pathItem = new RadioMenuItem("路径排序（默认）");
         pathItem.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent event) {
-
+                homeView.sortType = SortType.PATH;
 
             }
         });
@@ -242,7 +242,8 @@ public class MenuViewHelper {
             public void handle(ActionEvent event) {
                 DataManager.getInstans().sortByMusicName();
                 homeView.notifyListViewDataSetChange();
-                if(!DataManager.getInstans().isListEmpty()){
+                homeView.sortType = SortType.MUSIC_NAME;
+                if (!DataManager.getInstans().isListEmpty()) {
                     homeView.listView.scrollTo(0);
                 }
             }
@@ -255,7 +256,8 @@ public class MenuViewHelper {
             public void handle(ActionEvent event) {
                 DataManager.getInstans().sortBySingerName();
                 homeView.notifyListViewDataSetChange();
-                if(!DataManager.getInstans().isListEmpty()){
+                homeView.sortType = SortType.SINGER;
+                if (!DataManager.getInstans().isListEmpty()) {
                     homeView.listView.scrollTo(0);
                 }
             }
@@ -268,7 +270,8 @@ public class MenuViewHelper {
 
                 DataManager.getInstans().sortByFileName();
                 homeView.notifyListViewDataSetChange();
-                if(!DataManager.getInstans().isListEmpty()){
+                homeView.sortType = SortType.FILE_NAME;
+                if (!DataManager.getInstans().isListEmpty()) {
                     homeView.listView.scrollTo(0);
                 }
             }
@@ -280,13 +283,31 @@ public class MenuViewHelper {
             public void handle(ActionEvent event) {
                 DataManager.getInstans().sortByTime();
                 homeView.notifyListViewDataSetChange();
-                if(!DataManager.getInstans().isListEmpty()){
+                homeView.sortType = SortType.TIME;
+                if (!DataManager.getInstans().isListEmpty()) {
                     homeView.listView.scrollTo(0);
                 }
             }
         });
         timeItem.setToggleGroup(toggleGroup);
 
+        switch (homeView.sortType) {
+            case PATH:
+                pathItem.setSelected(true);
+                break;
+            case TIME:
+                timeItem.setSelected(true);
+                break;
+            case SINGER:
+                singerItem.setSelected(true);
+                break;
+            case FILE_NAME:
+                fileNameItem.setSelected(true);
+                break;
+            case MUSIC_NAME:
+                musicNameItem.setSelected(true);
+                break;
+        }
 
         CheckMenuItem albumItem = new CheckMenuItem("显示专辑名");
         albumItem.setSelected(homeView.isShowAlbum);

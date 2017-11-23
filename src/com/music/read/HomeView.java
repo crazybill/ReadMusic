@@ -63,6 +63,7 @@ public class HomeView {
     public boolean isShowAlbum = true;
     public boolean isShowSize = true;
     public boolean isShowBit = true;
+    public SortType sortType = SortType.PATH;
 
     public HomeView(Stage primaryStage) {
         this.primaryStage = primaryStage;
@@ -87,6 +88,7 @@ public class HomeView {
             isShowAlbum = playConfig.isCheckAlbum;
             isShowSize = playConfig.isCheckSize;
             isShowBit = playConfig.isCheckBit;
+            sortType = playConfig.sortType == null ? SortType.PATH : playConfig.sortType;
         }
 
         borderPane = new BorderPane();
@@ -211,6 +213,7 @@ public class HomeView {
         config.isCheckAlbum = isShowAlbum;
         config.isCheckSize = isShowSize;
         config.isCheckBit = isShowBit;
+        config.sortType = sortType;
 
         PlayListManager.savePlayConfig(config);
         PlayListManager.savePlayList(DataManager.getInstans().getList());
