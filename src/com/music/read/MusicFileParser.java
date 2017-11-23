@@ -126,8 +126,10 @@ public class MusicFileParser {
                 if (tag instanceof AbstractID3v2Tag) {
                     AbstractID3v2Tag atag = (AbstractID3v2Tag) tag;
                     AbstractID3v2Frame frame = (AbstractID3v2Frame) atag.getFrame("APIC");
-                    FrameBodyAPIC body = (FrameBodyAPIC) frame.getBody();
-                    return body.getImageData();
+                    if(frame != null){
+                        FrameBodyAPIC body = (FrameBodyAPIC) frame.getBody();
+                        return body.getImageData();
+                    }
                 }
             }
         } catch (Exception e) {
