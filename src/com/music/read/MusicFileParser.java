@@ -8,7 +8,12 @@ import org.jaudiotagger.audio.AudioFileIO;
 import org.jaudiotagger.audio.AudioHeader;
 import org.jaudiotagger.tag.FieldKey;
 import org.jaudiotagger.tag.Tag;
+import org.jaudiotagger.tag.id3.AbstractID3v2Frame;
+import org.jaudiotagger.tag.id3.AbstractID3v2Tag;
+import org.jaudiotagger.tag.id3.framebody.FrameBodyAPIC;
 
+import java.awt.*;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -40,6 +45,7 @@ public class MusicFileParser {
                 }
                 Platform.runLater(new Runnable() {
                     public void run() {
+                        DataManager.getInstans().sort(main.sortType);
                         PlayListManager.savePlayList(DataManager.getInstans().getList());
                         alert.getDialogPane().getButtonTypes().add(ButtonType.OK);
                         alert.close();
@@ -95,7 +101,7 @@ public class MusicFileParser {
             AudioHeader audioHeader = read.getAudioHeader();
             bean.time = audioHeader.getTrackLength();
             bean.timeShow = Utils.getMusicTime(bean.time);
-            bean.bitRate = audioHeader.getBitRate()+"bit";
+            bean.bitRate = audioHeader.getBitRate() + "bit";
 
             Tag tag = read.getTag();
             if (tag != null) {
@@ -111,6 +117,24 @@ public class MusicFileParser {
         return false;
     }
 
+
+    public byte[] getMusicImage(File file) {
+        try {
+            AudioFile read = AudioFileIO.read(file);
+            Tag tag = read.getTag();
+            if (tag != null) {
+                if (tag instanceof AbstractID3v2Tag) {
+                    AbstractID3v2Tag atag = (AbstractID3v2Tag) tag;
+                    AbstractID3v2Frame frame = (AbstractID3v2Frame) atag.getFrame("APIC");
+                    FrameBodyAPIC body = (FrameBodyAPIC) frame.getBody();
+                    return body.getImageData();
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
     public void executList() {
 
@@ -178,7 +202,7 @@ public class MusicFileParser {
     private void fixMP3Info(MP3Info bean) {
 
         try {
-            AudioFile mp3File =  AudioFileIO.read(bean.getMusicFile());
+            AudioFile mp3File = AudioFileIO.read(bean.getMusicFile());
             Tag tag = mp3File.getTag();
             if (tag != null) {
                 tag.setField(FieldKey.TITLE, bean.title);

@@ -1,6 +1,9 @@
 package com.music.read;
 
 import javafx.application.Platform;
+import javafx.scene.image.Image;
+
+import java.io.ByteArrayInputStream;
 
 /**
  * Created by xupanpan on 03/11/2017.
@@ -124,6 +127,14 @@ public class PlayManager {
                     MP3Info currentPlayInfo = DataManager.getInstans().getCurrentPlayInfo();
                     homeView.setButtonStop();
                     homeView.setCurrentPlayTitle((DataManager.getInstans().getCurrentPlayPosition() + 1) + " / " + DataManager.getInstans().getListSize() + " # " + currentPlayInfo.fileName + "   " + currentPlayInfo.filePath);
+
+                    byte[] musicImage = homeView.musicParser.getMusicImage(currentPlayInfo.getMusicFile());
+                    if (musicImage != null) {
+                        Image image = new Image(new ByteArrayInputStream(musicImage));
+                        homeView.musicBg.setImage(image);
+                    }else {
+                        homeView.musicBg.setImage(null);
+                    }
                 }
             });
         }

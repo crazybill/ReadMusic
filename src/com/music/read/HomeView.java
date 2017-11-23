@@ -16,6 +16,7 @@ import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.effect.BlendMode;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.*;
@@ -26,6 +27,7 @@ import javafx.stage.WindowEvent;
 import javafx.util.Callback;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Timer;
@@ -114,11 +116,13 @@ public class HomeView {
 
         initSettingView();
 
+        StackPane stackPane = new StackPane();
+
         listView = new JFXListView<MP3Info>();
         listView.setItems(DataManager.getInstans().getList());
         listView.setEditable(true);
-        listView.setBorder(FxViewUtil.getBorder(Color.WHITE, 0, 0));
-        listView.setBackground(FxViewUtil.getBackground(Color.WHITE, 0));
+        listView.setBorder(FxViewUtil.getBorder(Color.TRANSPARENT, 0, 0));
+        listView.setBackground(FxViewUtil.getBackground(Color.TRANSPARENT, 0));
         listView.setOrientation(Orientation.VERTICAL);
         listView.setCellFactory(new Callback<ListView<MP3Info>, ListCell<MP3Info>>() {
             public ListCell<MP3Info> call(ListView<MP3Info> param) {
@@ -141,7 +145,7 @@ public class HomeView {
             }
         });
 
-        VBox.setVgrow(listView, Priority.ALWAYS);
+        VBox.setVgrow(stackPane, Priority.ALWAYS);
 
         listView.setOnDragOver(new EventHandler<DragEvent>() {
             public void handle(DragEvent event) {
@@ -176,9 +180,17 @@ public class HomeView {
             }
         });
 
-        rootView.getChildren().addAll(getHeadTitle(), listView);
+        musicBg = new ImageView();
+        musicBg.setBlendMode(BlendMode.MULTIPLY);
+        musicBg.setFitWidth(700);
+        musicBg.setFitHeight(700);
+        musicBg.setSmooth(true);
+        StackPane.setAlignment(musicBg, Pos.TOP_RIGHT);
+        stackPane.getChildren().addAll(listView, musicBg);
+        rootView.getChildren().addAll(getHeadTitle(), stackPane);
     }
 
+    public ImageView musicBg;
 
     private void initData() {
         new Thread(new Runnable() {

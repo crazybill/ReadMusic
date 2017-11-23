@@ -4,6 +4,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import net.sourceforge.pinyin4j.PinyinHelper;
 
+import java.io.File;
 import java.util.*;
 
 public class DataManager {
@@ -187,6 +188,37 @@ public class DataManager {
         info.isPlaying = true;
     }
 
+    public synchronized void sortByPath() {
+        if (list.isEmpty()) {
+            return;
+        }
+
+        LinkedHashMap<String, ArrayList<MP3Info>> map = new LinkedHashMap<String, ArrayList<MP3Info>>();
+
+        for (MP3Info info : list) {
+            String parent = new File(info.filePath).getParent();
+            if (!map.containsKey(parent)) {
+                map.put(parent, new ArrayList<MP3Info>());
+            }
+            map.get(parent).add(info);
+        }
+
+
+        ArrayList<MP3Info> mList = new ArrayList<MP3Info>();
+
+        Set<Map.Entry<String, ArrayList<MP3Info>>> strings = map.entrySet();
+        Iterator<Map.Entry<String, ArrayList<MP3Info>>> iterator = strings.iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<String, ArrayList<MP3Info>> next = iterator.next();
+            ArrayList<MP3Info> value = next.getValue();
+            mList.addAll(value);
+        }
+
+        list.clear();
+        list.addAll(mList);
+
+    }
+
 
     public synchronized void sortByTime() {
         if (list.isEmpty()) {
@@ -227,7 +259,6 @@ public class DataManager {
 
                 String[] strings = PinyinHelper.toHanyuPinyinStringArray(c1);
                 String[] strings1 = PinyinHelper.toHanyuPinyinStringArray(c2);
-
 
                 String s1;
                 String s2;
@@ -293,10 +324,7 @@ public class DataManager {
                 pinyinSbf.append(pinyinArray[i]);
             }
         }
-
-        String s = pinyinSbf.toString();
-
-        return s;
+        return pinyinSbf.toString();
     }
 
     public synchronized void sortBySingerName() {
@@ -339,6 +367,26 @@ public class DataManager {
                 return s1.compareTo(s2);
             }
         });
+    }
+
+    public synchronized void sort(SortType type) {
+        switch (type) {
+            case MUSIC_NAME:
+                sortByMusicName();
+                break;
+            case FILE_NAME:
+                sortByFileName();
+                break;
+            case SINGER:
+                sortBySingerName();
+                break;
+            case TIME:
+                sortByTime();
+                break;
+            case PATH:
+                sortByPath();
+                break;
+        }
 
 
     }

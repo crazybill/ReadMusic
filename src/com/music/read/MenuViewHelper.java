@@ -231,8 +231,15 @@ public class MenuViewHelper {
         RadioMenuItem pathItem = new RadioMenuItem("路径排序（默认）");
         pathItem.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent event) {
+                if (homeView.sortType == SortType.PATH) {
+                    return;
+                }
+                DataManager.getInstans().sortByPath();
                 homeView.sortType = SortType.PATH;
-
+                homeView.notifyListViewDataSetChange();
+                if (!DataManager.getInstans().isListEmpty()) {
+                    homeView.listView.scrollTo(0);
+                }
             }
         });
         pathItem.setToggleGroup(toggleGroup);
@@ -240,6 +247,9 @@ public class MenuViewHelper {
         RadioMenuItem musicNameItem = new RadioMenuItem("标题排序");
         musicNameItem.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent event) {
+                if (homeView.sortType == SortType.MUSIC_NAME) {
+                    return;
+                }
                 DataManager.getInstans().sortByMusicName();
                 homeView.notifyListViewDataSetChange();
                 homeView.sortType = SortType.MUSIC_NAME;
@@ -254,6 +264,10 @@ public class MenuViewHelper {
         RadioMenuItem singerItem = new RadioMenuItem("歌手排序");
         singerItem.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent event) {
+
+                if (homeView.sortType == SortType.SINGER) {
+                    return;
+                }
                 DataManager.getInstans().sortBySingerName();
                 homeView.notifyListViewDataSetChange();
                 homeView.sortType = SortType.SINGER;
@@ -267,7 +281,9 @@ public class MenuViewHelper {
         RadioMenuItem fileNameItem = new RadioMenuItem("文件名排序");
         fileNameItem.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent event) {
-
+                if (homeView.sortType == SortType.FILE_NAME) {
+                    return;
+                }
                 DataManager.getInstans().sortByFileName();
                 homeView.notifyListViewDataSetChange();
                 homeView.sortType = SortType.FILE_NAME;
@@ -281,6 +297,9 @@ public class MenuViewHelper {
         RadioMenuItem timeItem = new RadioMenuItem("时间排序");
         timeItem.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent event) {
+                if (homeView.sortType == SortType.TIME) {
+                    return;
+                }
                 DataManager.getInstans().sortByTime();
                 homeView.notifyListViewDataSetChange();
                 homeView.sortType = SortType.TIME;
