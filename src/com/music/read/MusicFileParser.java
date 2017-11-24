@@ -118,7 +118,10 @@ public class MusicFileParser {
     }
 
 
-    public byte[] getMusicImage(File file) {
+    public static byte[] getMusicImage(File file) {
+        if (file == null) {
+            return null;
+        }
         try {
             AudioFile read = AudioFileIO.read(file);
             Tag tag = read.getTag();
@@ -126,7 +129,7 @@ public class MusicFileParser {
                 if (tag instanceof AbstractID3v2Tag) {
                     AbstractID3v2Tag atag = (AbstractID3v2Tag) tag;
                     AbstractID3v2Frame frame = (AbstractID3v2Frame) atag.getFrame("APIC");
-                    if(frame != null){
+                    if (frame != null) {
                         FrameBodyAPIC body = (FrameBodyAPIC) frame.getBody();
                         return body.getImageData();
                     }
