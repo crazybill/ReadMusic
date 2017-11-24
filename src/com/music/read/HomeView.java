@@ -26,6 +26,7 @@ import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import javafx.util.Callback;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -188,6 +189,28 @@ public class HomeView {
         StackPane.setAlignment(musicBg, Pos.TOP_RIGHT);
         stackPane.getChildren().addAll(listView, musicBg);
         rootView.getChildren().addAll(getHeadTitle(), stackPane);
+    }
+
+
+    public void updateMusicPlayState() {
+        MP3Info currentPlayInfo = DataManager.getInstans().getCurrentPlayInfo();
+        if (currentPlayInfo != null) {
+            setButtonStop();
+            setCurrentPlayTitle((DataManager.getInstans().getCurrentPlayPosition() + 1) + " / " + DataManager.getInstans().getListSize() + " # " + currentPlayInfo.fileName + "   " + currentPlayInfo.filePath);
+
+            byte[] musicImage = musicParser.getMusicImage(currentPlayInfo.getMusicFile());
+            if (musicImage != null) {
+                Image image = new Image(new ByteArrayInputStream(musicImage));
+                musicBg.setImage(image);
+            } else {
+                musicBg.setImage(null);
+            }
+        }else {
+            setCurrentPlayTitle(Main.APP_NAME);
+            musicBg.setImage(null);
+        }
+
+
     }
 
     public ImageView musicBg;

@@ -49,7 +49,7 @@ public class PlayManager {
 
 
     public void play(MP3Info info) {
-        if (info == null || info.getMusicFile() == null) {
+        if (info == null) {
             return;
         }
 
@@ -124,17 +124,7 @@ public class PlayManager {
             isUserControl = false;
             Platform.runLater(new Runnable() {
                 public void run() {
-                    MP3Info currentPlayInfo = DataManager.getInstans().getCurrentPlayInfo();
-                    homeView.setButtonStop();
-                    homeView.setCurrentPlayTitle((DataManager.getInstans().getCurrentPlayPosition() + 1) + " / " + DataManager.getInstans().getListSize() + " # " + currentPlayInfo.fileName + "   " + currentPlayInfo.filePath);
-
-                    byte[] musicImage = homeView.musicParser.getMusicImage(currentPlayInfo.getMusicFile());
-                    if (musicImage != null) {
-                        Image image = new Image(new ByteArrayInputStream(musicImage));
-                        homeView.musicBg.setImage(image);
-                    }else {
-                        homeView.musicBg.setImage(null);
-                    }
+                    homeView.updateMusicPlayState();
                 }
             });
         }

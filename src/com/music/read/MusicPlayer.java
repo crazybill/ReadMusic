@@ -1,5 +1,7 @@
 package com.music.read;
 
+import javafx.scene.control.Alert;
+
 import javax.sound.sampled.*;
 import java.io.File;
 import java.io.IOException;
@@ -47,6 +49,10 @@ public class MusicPlayer {
         File musicFile = currentPlayInfo.getMusicFile();
 
         if (musicFile == null || currentPlayInfo.time <= 0) {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setHeaderText("播放错误！");
+            alert.setContentText("当前音乐文件可能被删除，请重新加载！");
+            alert.show();
             return;
         }
 

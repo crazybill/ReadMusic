@@ -56,12 +56,12 @@ public class MenuViewHelper {
             }
         });
 
-        MenuItem clearItem = new MenuItem("删除选中");
+        MenuItem clearItem = new MenuItem("移除选中");
         clearItem.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent event) {
                 if (DataManager.getInstans().removeSelected()) {
-                    homeView.setCurrentPlayTitle(Main.APP_NAME);
                     playManager.closePlay();
+                    homeView.updateMusicPlayState();
                 }
             }
         });
@@ -70,11 +70,25 @@ public class MenuViewHelper {
         clearAllItem.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent event) {
                 DataManager.getInstans().clearList();
-                homeView.setCurrentPlayTitle(Main.APP_NAME);
                 playManager.closePlay();
                 homeView.listView.setUserData(null);
+                homeView.updateMusicPlayState();
             }
         });
+
+        MenuItem deleteItem = new MenuItem("确定删除");
+        deleteItem.setOnAction(new EventHandler<ActionEvent>() {
+            public void handle(ActionEvent event) {
+                if (DataManager.getInstans().deleteSelected()) {
+                    playManager.closePlay();
+                    homeView.updateMusicPlayState();
+                }
+            }
+        });
+
+        Menu deleteMenu = new Menu("彻底删除选中文件！");
+
+        deleteMenu.getItems().add(deleteItem);
 
         MenuItem exitItem = new MenuItem("退出");
         exitItem.setOnAction(new EventHandler<ActionEvent>() {
@@ -83,7 +97,7 @@ public class MenuViewHelper {
             }
         });
 
-        fileMenu.getItems().addAll(openItem, clearItem, clearAllItem, new SeparatorMenuItem(), exitItem);
+        fileMenu.getItems().addAll(openItem, clearItem, clearAllItem, new SeparatorMenuItem(), deleteMenu, exitItem);
 
         menuBar.getMenus().add(fileMenu);
     }

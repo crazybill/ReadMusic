@@ -61,18 +61,32 @@ public class MP3ListCell extends ListCell<MP3Info> {
                 homeView.musicParser.executList(selectedItem, true);
             }
         });
+        MenuItem removeItem = new MenuItem();
+        removeItem.setText("移除");
+        removeItem.setOnAction(new EventHandler<ActionEvent>() {
+            public void handle(ActionEvent event) {
+                MP3Info selectedItem = getListView().getSelectionModel().getSelectedItem();
+                DataManager.getInstans().removeMP3Info(selectedItem);
+                if (selectedItem.isPlaying) {
+                    homeView.playManager.closePlay();
+                    homeView.updateMusicPlayState();
+                }
+            }
+        });
+
         MenuItem deleteItem = new MenuItem();
-        deleteItem.setText("删除");
+        deleteItem.setText("彻底删除！");
         deleteItem.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent event) {
                 MP3Info selectedItem = getListView().getSelectionModel().getSelectedItem();
+                DataManager.getInstans().deleteMP3Info(selectedItem);
                 if (selectedItem.isPlaying) {
                     homeView.playManager.closePlay();
-                    homeView.setCurrentPlayTitle(Main.APP_NAME);
+                    homeView.updateMusicPlayState();
                 }
-                DataManager.getInstans().removeMP3Info(selectedItem);
             }
         });
+
         MenuItem fileItem = new MenuItem();
         fileItem.setText("查看文件");
         fileItem.setOnAction(new EventHandler<ActionEvent>() {
@@ -92,7 +106,7 @@ public class MP3ListCell extends ListCell<MP3Info> {
                 }
             }
         });
-        contextMenu.getItems().addAll(playItem, codeItem, deleteItem, fileItem);
+        contextMenu.getItems().addAll(playItem, codeItem, removeItem,deleteItem, fileItem);
 
         return contextMenu;
     }

@@ -85,10 +85,50 @@ public class DataManager {
         return isPlayCurrent;
     }
 
+
+    public synchronized boolean deleteSelected() {
+
+        boolean isPlayCurrent = false;
+        List<MP3Info> rList = new ArrayList<MP3Info>();
+        for (int i = 0; i < list.size(); i++) {
+            MP3Info mp3Info = list.get(i);
+            if (mp3Info.isChecked) {
+                rList.add(mp3Info);
+                if (mp3Info.isPlaying) {
+                    isPlayCurrent = true;
+                }
+            }
+        }
+        if (rList.size() > 0) {
+            for (MP3Info info : rList) {
+                File musicFile = info.getMusicFile();
+                if (musicFile != null) {
+                    musicFile.delete();
+                }
+                list.remove(info);
+            }
+        }
+
+        PlayListManager.savePlayList(list);
+
+        return isPlayCurrent;
+    }
+
+
     public synchronized void removeMP3Info(MP3Info info) {
         list.remove(info);
         PlayListManager.savePlayList(list);
     }
+
+    public synchronized void deleteMP3Info(MP3Info info) {
+        File musicFile = info.getMusicFile();
+        if (musicFile != null) {
+            musicFile.delete();
+        }
+        list.remove(info);
+        PlayListManager.savePlayList(list);
+    }
+
 
     public synchronized int getCurrentPlayPosition() {
 
