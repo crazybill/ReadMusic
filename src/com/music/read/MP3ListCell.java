@@ -8,15 +8,10 @@ import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
-import javafx.scene.control.Label;
-import javafx.scene.control.MenuItem;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 
@@ -29,7 +24,6 @@ public class MP3ListCell extends ListCell<MP3Info> {
     private JFXCheckBox cb;
     private Label index, name, title, artist, album, time, size, bitRate;
     private ContextMenu contextMenu = getCM();
-    private ImageView imageView;
 
     private ChangeListener<Boolean> listener = new ChangeListener<Boolean>() {
         public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
@@ -124,11 +118,10 @@ public class MP3ListCell extends ListCell<MP3Info> {
                 }
             }
         });
-        contextMenu.getItems().addAll(playItem, codeItem, removeItem,deleteItem, fileItem);
+        contextMenu.getItems().addAll(playItem, codeItem, removeItem, deleteItem, fileItem);
 
         return contextMenu;
     }
-
 
 
     private Separator s1, s2, s3, s4, s5;
@@ -139,17 +132,11 @@ public class MP3ListCell extends ListCell<MP3Info> {
         cb = new JFXCheckBox();
         cb.selectedProperty().addListener(new ChangeListener<Boolean>() {
             public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-                info.isChecked = newValue;
+                mMP3Info.isChecked = newValue;
             }
         });
         index = new Label();
         index.setPrefWidth(25);
-
-        imageView = new ImageView();
-        imageView.setFitWidth(40);
-        imageView.setFitHeight(40);
-        //imageView.setSmooth(true);
-        imageView.setCache(true);
         name = new Label();
         name.setWrapText(true);
         name.setPrefWidth(200);
@@ -179,24 +166,23 @@ public class MP3ListCell extends ListCell<MP3Info> {
         s3 = new Separator(Orientation.VERTICAL);
         s4 = new Separator(Orientation.VERTICAL);
         s5 = new Separator(Orientation.VERTICAL);
-        itemView.getChildren().addAll(cb, index,imageView, name, s1, title, s2, artist, s3, album, s4, time, s5, size, bitRate);
+        itemView.getChildren().addAll(cb, index, name, s1, title, s2, artist, s3, album, s4, time, s5, size, bitRate);
         return itemView;
 
     }
 
-    private MP3Info info;
+
+    private MP3Info mMP3Info;
+    private boolean iscPlay;
 
     private void updateView(MP3Info info) {
-        this.info = info;
+        if (mMP3Info != null && mMP3Info == info && iscPlay == info.isPlaying) {
+            return;
+        }
+        iscPlay = info.isPlaying;
+        mMP3Info = info;
         cb.setSelected(info.isChecked);
         index.setText(String.valueOf(getIndex() + 1));
-
-        byte[] musicImage = MusicFileParser.getMusicImage(info.getMusicFile());
-        if(musicImage!= null){
-            imageView.setImage(new Image(new ByteArrayInputStream(musicImage)));
-        }else {
-            imageView.setImage(null);
-        }
         name.setText(info.fileName);
         title.setText(info.title);
         artist.setText(info.artist);
@@ -232,7 +218,6 @@ public class MP3ListCell extends ListCell<MP3Info> {
             bitRate.setVisible(false);
         }
         if (info.isPlaying) {
-            setColorPlaying(index);
             setColorPlaying(name);
             setColorPlaying(title);
             setColorPlaying(artist);
@@ -241,7 +226,6 @@ public class MP3ListCell extends ListCell<MP3Info> {
             setColorPlaying(size);
             setColorPlaying(bitRate);
         } else {
-            setColorDef(index);
             setColorDef(name);
             setColorDef(title);
             setColorDef(artist);
@@ -249,6 +233,12 @@ public class MP3ListCell extends ListCell<MP3Info> {
             setColorDef(time);
             setColorDef(size);
             setColorDef(bitRate);
+        }
+
+        if (info.hasImage) {
+            index.setTextFill(Color.RED);
+        } else {
+            setColorDef(index);
         }
     }
 

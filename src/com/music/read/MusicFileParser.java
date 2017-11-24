@@ -12,8 +12,6 @@ import org.jaudiotagger.tag.id3.AbstractID3v2Frame;
 import org.jaudiotagger.tag.id3.AbstractID3v2Tag;
 import org.jaudiotagger.tag.id3.framebody.FrameBodyAPIC;
 
-import java.awt.*;
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -109,6 +107,14 @@ public class MusicFileParser {
                 bean.artist = tag.getFirst(FieldKey.ARTIST);
                 bean.album = tag.getFirst(FieldKey.ALBUM);
                 bean.genre = tag.getFirst(FieldKey.GENRE);
+                if (tag instanceof AbstractID3v2Tag) {
+                    AbstractID3v2Tag atag = (AbstractID3v2Tag) tag;
+                    AbstractID3v2Frame frame = (AbstractID3v2Frame) atag.getFrame("APIC");
+                    if (frame != null) {
+                       // bean.images = ((FrameBodyAPIC) frame.getBody()).getImageData();
+                        bean.hasImage = true;
+                    }
+                }
                 return true;
             }
         } catch (Exception e) {

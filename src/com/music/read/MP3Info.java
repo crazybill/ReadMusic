@@ -21,6 +21,27 @@ public class MP3Info {
     public String bitRate;
     public boolean isChecked;
     public boolean isPlaying;
+    public boolean hasImage;
+
+
+    @Override
+    public String toString() {
+        return "MP3Info{" +
+                "fileName='" + fileName + '\'' +
+                ", title='" + title + '\'' +
+                ", album='" + album + '\'' +
+                ", artist='" + artist + '\'' +
+                ", genre='" + genre + '\'' +
+                ", time=" + time +
+                ", timeShow='" + timeShow + '\'' +
+                ", size='" + size + '\'' +
+                ", filePath='" + filePath + '\'' +
+                ", bitRate='" + bitRate + '\'' +
+                ", isChecked=" + isChecked +
+                ", isPlaying=" + isPlaying +
+                ", hasImage=" + hasImage +
+                '}';
+    }
 
     public File getMusicFile() {
         if (TextUtils.isEmpty(filePath)) {

@@ -4,3 +4,8 @@
     -fx-text-fill: transparent;
 }
 
+#s-lable{
+    -fx-font-color: red;
+    -fx-font-size: 10px;
+    -fx-font-weight: bolder;
+}
