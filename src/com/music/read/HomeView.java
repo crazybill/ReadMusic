@@ -1,9 +1,6 @@
 package com.music.read;
 
-import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXCheckBox;
-import com.jfoenix.controls.JFXListView;
-import com.jfoenix.controls.JFXTextField;
+import com.jfoenix.controls.*;
 import com.sun.javafx.scene.control.skin.ListViewSkin;
 import com.sun.javafx.scene.control.skin.VirtualFlow;
 import javafx.application.Platform;
@@ -16,7 +13,6 @@ import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.effect.BlendMode;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.*;
@@ -28,8 +24,8 @@ import javafx.util.Callback;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collections;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -83,6 +79,68 @@ public class HomeView {
         playManager = new PlayManager(this);
         fileNameEditer = new FileNameEditer(this);
         setCurrentPlayTitle(Main.APP_NAME);
+        initConfig();
+
+        borderPane = new BorderPane();
+        Scene scene = new Scene(borderPane, WIDTH, HIGTH);
+        scene.getStylesheets().add("/res/lisStyles.css");
+        primaryStage.setScene(scene);
+        primaryStage.show();
+
+        initTopView();
+        initCenterView();
+        initBottomView();
+
+        initData();
+    }
+
+
+    private ImageView musicImageView;
+
+    private void initBottomView() {
+
+        VBox bottomView = new VBox();
+
+        JFXSlider playSlider = new JFXSlider(0.3, 1, 1);
+        playSlider.setBackground(FxViewUtil.getBackground(Color.WHITE));
+        playSlider.setShowTickLabels(false);
+        playSlider.setShowTickMarks(false);
+        playSlider.setMajorTickUnit(1);
+        playSlider.setMax(100);
+
+        playSlider.valueProperty().addListener(new ChangeListener<Number>() {
+            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+
+                LogCat.i(newValue+"");
+            }
+        });
+
+
+        HBox bottomView1 = new HBox();
+        bottomView1.setAlignment(Pos.CENTER_LEFT);
+        bottomView1.setBackground(FxViewUtil.getBackground(Color.WHITE));
+
+        musicImageView = new ImageView();
+        musicImageView.setFitHeight(80);
+        musicImageView.setFitWidth(80);
+
+        HBox.setMargin(musicImageView,new Insets(8,10,10,10));
+
+        InputStream resourceAsStream = HomeView.class.getClass().getResourceAsStream("/res/icon_last.png");
+        Image im = new Image(resourceAsStream);
+        ImageView lastView = new ImageView(im);
+        lastView.setFitHeight(44);
+        lastView.setFitWidth(48);
+
+        bottomView1.getChildren().addAll(musicImageView, lastView);
+
+        bottomView.getChildren().addAll(playSlider, bottomView1);
+
+        borderPane.setBottom(bottomView);
+
+    }
+
+    private void initConfig() {
 
         playConfig = PlayListManager.getPlayConfig();
         if (playConfig != null) {
@@ -93,31 +151,20 @@ public class HomeView {
             isShowBit = playConfig.isCheckBit;
             sortType = playConfig.sortType == null ? SortType.PATH : playConfig.sortType;
         }
-
-        borderPane = new BorderPane();
-        Scene scene = new Scene(borderPane, WIDTH, HIGTH);
-        scene.getStylesheets().add("/res/lisStyles.css");
-
-        primaryStage.setScene(scene);
-        primaryStage.show();
-
-        new MenuViewHelper(this).initMenuBar();
-
-        initView();
-        borderPane.setCenter(rootView);
-
-        initData();
     }
 
-    private void initView() {
+    private void initTopView() {
+        new MenuViewHelper(this).initMenuBar();
+    }
+
+
+    private void initCenterView() {
 
         rootView = new VBox();
         rootView.setAlignment(Pos.TOP_CENTER);
         rootView.setBackground(Background.EMPTY);
 
         initSettingView();
-
-        StackPane stackPane = new StackPane();
 
         listView = new JFXListView<MP3Info>();
         listView.setItems(DataManager.getInstans().getList());
@@ -146,7 +193,7 @@ public class HomeView {
             }
         });
 
-        VBox.setVgrow(stackPane, Priority.ALWAYS);
+        VBox.setVgrow(listView, Priority.ALWAYS);
 
         listView.setOnDragOver(new EventHandler<DragEvent>() {
             public void handle(DragEvent event) {
@@ -181,14 +228,9 @@ public class HomeView {
             }
         });
 
-        musicBg = new ImageView();
-        musicBg.setBlendMode(BlendMode.MULTIPLY);
-        musicBg.setFitWidth(700);
-        musicBg.setFitHeight(700);
-        musicBg.setSmooth(true);
-        StackPane.setAlignment(musicBg, Pos.TOP_RIGHT);
-        stackPane.getChildren().addAll(listView, musicBg);
-        rootView.getChildren().addAll(getHeadTitle(), stackPane);
+        rootView.getChildren().addAll(getHeadTitle(), listView);
+
+        borderPane.setCenter(rootView);
     }
 
 
@@ -198,22 +240,18 @@ public class HomeView {
             setButtonStop();
             setCurrentPlayTitle((DataManager.getInstans().getCurrentPlayPosition() + 1) + " / " + DataManager.getInstans().getListSize() + " # " + currentPlayInfo.fileName + "   " + currentPlayInfo.filePath);
 
-            byte[] musicImage = musicParser.getMusicImage(currentPlayInfo.getMusicFile());
-            if (musicImage != null) {
+            if (currentPlayInfo.hasImage) {
+                byte[] musicImage = musicParser.getMusicImage(currentPlayInfo.getMusicFile());
                 Image image = new Image(new ByteArrayInputStream(musicImage));
-                musicBg.setImage(image);
+                musicImageView.setImage(image);
             } else {
-                musicBg.setImage(null);
+                musicImageView.setImage(null);
             }
-        }else {
+        } else {
             setCurrentPlayTitle(Main.APP_NAME);
-            musicBg.setImage(null);
+            musicImageView.setImage(null);
         }
-
-
     }
-
-    public ImageView musicBg;
 
     private void initData() {
         new Thread(new Runnable() {
