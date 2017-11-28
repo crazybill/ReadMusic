@@ -1,9 +1,6 @@
 package com.music.read;
 
 import javafx.application.Platform;
-import javafx.scene.image.Image;
-
-import java.io.ByteArrayInputStream;
 
 /**
  * Created by xupanpan on 03/11/2017.

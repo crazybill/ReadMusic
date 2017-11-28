@@ -173,13 +173,9 @@ public class MP3ListCell extends ListCell<MP3Info> {
 
 
     private MP3Info mMP3Info;
-    private boolean iscPlay;
 
     private void updateView(MP3Info info) {
-        if (mMP3Info != null && mMP3Info == info && iscPlay == info.isPlaying) {
-            return;
-        }
-        iscPlay = info.isPlaying;
+
         mMP3Info = info;
         cb.setSelected(info.isChecked);
         index.setText(String.valueOf(getIndex() + 1));

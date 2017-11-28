@@ -16,7 +16,7 @@ import java.awt.image.BufferedImage;
  */
 public class Main extends Application {
     public static final String APP_NAME = "MusicOcean";
-    public static final String APP_VERSION = "1.7";
+    public static final String APP_VERSION = "2.0";
     public static final Color blueColor = Color.valueOf("178eeb");
     private TrayIcon trayIcon;
     private HomeView homeView;
