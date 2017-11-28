@@ -31,7 +31,7 @@ public class PlayManager {
         public void onPlaying(final int position) {
             Platform.runLater(new Runnable() {
                 public void run() {
-                    homeView.playTimeLabel.setText(Utils.getMusicTime(position));
+                    homeView.mPlayControlViewHelper.updatePlayTime(position);
                 }
             });
         }
@@ -108,7 +108,7 @@ public class PlayManager {
 
         } else {
             playMusic();
-            homeView.setButtonPlay();
+            homeView.mPlayControlViewHelper.setButtonPlay();
             homeView.scrollToShow();
         }
     }
@@ -133,7 +133,7 @@ public class PlayManager {
 
             Platform.runLater(new Runnable() {
                 public void run() {
-                    homeView.setButtonPlay();
+                    homeView.mPlayControlViewHelper.setButtonPlay();
                 }
             });
         }

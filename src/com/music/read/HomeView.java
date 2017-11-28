@@ -13,8 +13,6 @@ import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -22,10 +20,7 @@ import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import javafx.util.Callback;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.InputStream;
-import java.util.Collections;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -58,6 +53,7 @@ public class HomeView {
     public PlayManager playManager;
     public FileNameEditer fileNameEditer;
     public Config playConfig;
+    public PlayControlViewHelper mPlayControlViewHelper;
 
     public boolean isShowAlbum = true;
     public boolean isShowSize = true;
@@ -94,67 +90,13 @@ public class HomeView {
         initData();
     }
 
-
-    private ImageView musicImageView;
-
-    private void initBottomView() {
-
-        VBox bottomView = new VBox();
-
-        JFXSlider playSlider = new JFXSlider(0.3, 1, 1);
-        playSlider.setBackground(FxViewUtil.getBackground(Color.WHITE));
-        playSlider.setShowTickLabels(false);
-        playSlider.setShowTickMarks(false);
-        playSlider.setMajorTickUnit(1);
-        playSlider.setMax(100);
-
-        playSlider.valueProperty().addListener(new ChangeListener<Number>() {
-            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-
-                LogCat.i(newValue+"");
-            }
-        });
-
-
-        HBox bottomView1 = new HBox();
-        bottomView1.setAlignment(Pos.CENTER_LEFT);
-        bottomView1.setBackground(FxViewUtil.getBackground(Color.WHITE));
-
-        musicImageView = new ImageView();
-        musicImageView.setFitHeight(80);
-        musicImageView.setFitWidth(80);
-
-        HBox.setMargin(musicImageView,new Insets(8,10,10,10));
-
-        InputStream resourceAsStream = HomeView.class.getClass().getResourceAsStream("/res/icon_last.png");
-        Image im = new Image(resourceAsStream);
-        ImageView lastView = new ImageView(im);
-        lastView.setFitHeight(44);
-        lastView.setFitWidth(48);
-
-        bottomView1.getChildren().addAll(musicImageView, lastView);
-
-        bottomView.getChildren().addAll(playSlider, bottomView1);
-
-        borderPane.setBottom(bottomView);
-
-    }
-
-    private void initConfig() {
-
-        playConfig = PlayListManager.getPlayConfig();
-        if (playConfig != null) {
-            isSelectAll = playConfig.isCheckedAll;
-            playManager.setPlayType(playConfig.playType);
-            isShowAlbum = playConfig.isCheckAlbum;
-            isShowSize = playConfig.isCheckSize;
-            isShowBit = playConfig.isCheckBit;
-            sortType = playConfig.sortType == null ? SortType.PATH : playConfig.sortType;
-        }
-    }
-
     private void initTopView() {
         new MenuViewHelper(this).initMenuBar();
+    }
+
+    private void initBottomView() {
+        mPlayControlViewHelper = new PlayControlViewHelper(this);
+        mPlayControlViewHelper.initBottonView();
     }
 
 
@@ -234,23 +176,27 @@ public class HomeView {
     }
 
 
+    private void initConfig() {
+        playConfig = PlayListManager.getPlayConfig();
+        if (playConfig != null) {
+            isSelectAll = playConfig.isCheckedAll;
+            playManager.setPlayType(playConfig.playType);
+            isShowAlbum = playConfig.isCheckAlbum;
+            isShowSize = playConfig.isCheckSize;
+            isShowBit = playConfig.isCheckBit;
+            sortType = playConfig.sortType == null ? SortType.PATH : playConfig.sortType;
+        }
+    }
+
     public void updateMusicPlayState() {
         MP3Info currentPlayInfo = DataManager.getInstans().getCurrentPlayInfo();
         if (currentPlayInfo != null) {
-            setButtonStop();
+            mPlayControlViewHelper.setButtonStop();
             setCurrentPlayTitle((DataManager.getInstans().getCurrentPlayPosition() + 1) + " / " + DataManager.getInstans().getListSize() + " # " + currentPlayInfo.fileName + "   " + currentPlayInfo.filePath);
-
-            if (currentPlayInfo.hasImage) {
-                byte[] musicImage = musicParser.getMusicImage(currentPlayInfo.getMusicFile());
-                Image image = new Image(new ByteArrayInputStream(musicImage));
-                musicImageView.setImage(image);
-            } else {
-                musicImageView.setImage(null);
-            }
         } else {
             setCurrentPlayTitle(Main.APP_NAME);
-            musicImageView.setImage(null);
         }
+        mPlayControlViewHelper.updateMusicInfo(currentPlayInfo);
     }
 
     private void initData() {
@@ -531,7 +477,6 @@ public class HomeView {
         Separator s4 = new Separator(Orientation.VERTICAL);
         s5 = new Separator(Orientation.VERTICAL);
         itemView.getChildren().addAll(cb, index, name, s2, title, s3, artist, s4, album, s5, time);
-        initPlayControlView(itemView);
         setShowZhuanji(isShowAlbum);
         return itemView;
     }
@@ -551,86 +496,6 @@ public class HomeView {
             s5.setManaged(false);
             s5.setVisible(false);
         }
-    }
-
-
-    public Label playTimeLabel;
-    public Button playStop;
-
-    private void initPlayControlView(HBox itemView) {
-        Separator s6 = new Separator(Orientation.VERTICAL);
-        playTimeLabel = new Label();
-        playTimeLabel.setPrefWidth(45);
-        playTimeLabel.setTextFill(Main.blueColor);
-        playTimeLabel.setOnMouseClicked(new EventHandler<MouseEvent>() {
-            public void handle(MouseEvent event) {
-                if (event.getButton() == MouseButton.PRIMARY) {
-                    if (event.getClickCount() == 2) {
-
-                        scrollToShow();
-                    }
-                }
-            }
-        });
-
-        playStop = new Button();
-        setButtonPlay();
-        playStop.setBackground(null);
-        playStop.setOnAction(new EventHandler<ActionEvent>() {
-            public void handle(ActionEvent event) {
-                onPlayClick();
-            }
-        });
-
-        itemView.getChildren().addAll(s6, playStop, playTimeLabel);
-    }
-
-
-    public void setButtonPlay() {
-        ImageView startImage = getStartImage();
-        if (startImage != null) {
-            playStop.setGraphic(startImage);
-        }
-    }
-
-    public void setButtonStop() {
-        ImageView stopImage = getStopImage();
-        if (stopImage != null) {
-            playStop.setGraphic(stopImage);
-        }
-    }
-
-    private ImageView imageView = null;
-
-    private ImageView getStartImage() {
-        if (imageView == null) {
-            try {
-                InputStream resourceAsStream = HomeView.class.getClass().getResourceAsStream("/res/ic_live_play.png");
-                Image im = new Image(resourceAsStream);
-                imageView = new ImageView(im);
-                imageView.setFitHeight(20);
-                imageView.setFitWidth(20);
-            } catch (Exception e) {
-            }
-        }
-        return imageView;
-    }
-
-    private ImageView imageView1 = null;
-
-    private ImageView getStopImage() {
-        if (imageView1 == null) {
-            try {
-                InputStream resourceAsStream = HomeView.class.getClass().getResourceAsStream("/res/ic_live_suspend.png");
-                Image im = new Image(resourceAsStream);
-                imageView1 = new ImageView(im);
-                imageView1.setFitHeight(20);
-                imageView1.setFitWidth(20);
-            } catch (Exception e) {
-            }
-        }
-
-        return imageView1;
     }
 
     public void onPlayClick() {
