@@ -1,5 +1,6 @@
 package com.music.read;
 
+import it.sauronsoftware.jave.*;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
@@ -68,6 +69,32 @@ public class MusicFileParser {
                 if (parseMP3Info(bean)) {
                     updateLoad(bean);
                 }
+            } else if (isAmrFile(name)) {
+                File targetFile = new File(f.getPath().replace(".amr", ".mp3"));
+                if (convertAmr2MP3(f, targetFile)) {
+                    MP3Info bean = new MP3Info();
+                    bean.isChecked = main.isSelectAll;
+                    bean.fileName = targetFile.getName();
+                    bean.filePath = targetFile.getPath();
+                    bean.size = Utils.getFileSize(targetFile.length());
+                    if (parseMP3Info(bean)) {
+                        updateLoad(bean);
+                    }
+                }
+            } else {//不支持的格式，都转成MP3
+                File targetFile = new File(f.getPath().concat(".mp3"));
+                if (convertAmr2MP3(f, targetFile)) {
+                    MP3Info bean = new MP3Info();
+                    bean.isChecked = main.isSelectAll;
+                    bean.fileName = targetFile.getName();
+                    bean.filePath = targetFile.getPath();
+                    bean.size = Utils.getFileSize(targetFile.length());
+                    if (parseMP3Info(bean)) {
+                        updateLoad(bean);
+                    }
+                } else {
+                    System.out.println("无法转换"+f.getName()+"为mp3！！！！");
+                }
             }
         } else {
             File[] files = f.listFiles();
@@ -91,6 +118,10 @@ public class MusicFileParser {
         return name.endsWith(".mp3") || name.endsWith(".MP3") || name.endsWith(".flac") || name.endsWith(".FLAC") || name.endsWith(".wav") || name.endsWith(".ogg") || name.endsWith(".ape");
     }
 
+    private boolean isAmrFile(String name) {
+        return name.endsWith(".amr");
+    }
+
 
     private boolean parseMP3Info(MP3Info bean) {
 
@@ -111,7 +142,6 @@ public class MusicFileParser {
                     AbstractID3v2Tag atag = (AbstractID3v2Tag) tag;
                     AbstractID3v2Frame frame = (AbstractID3v2Frame) atag.getFrame("APIC");
                     if (frame != null) {
-                       // bean.images = ((FrameBodyAPIC) frame.getBody()).getImageData();
                         bean.hasImage = true;
                     }
                 }
@@ -225,6 +255,29 @@ public class MusicFileParser {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private boolean convertAmr2MP3(File src, File target) {
+        AudioAttributes audio = new AudioAttributes();
+        audio.setCodec("libmp3lame");
+        audio.setBitRate(new Integer(128000));
+        audio.setChannels(new Integer(2));
+        audio.setSamplingRate(new Integer(44100));
+        Encoder encoder = new Encoder(new MyFFMPEGExecute());
+        EncodingAttributes attrs = new EncodingAttributes();
+        attrs.setFormat("mp3");
+        attrs.setAudioAttributes(audio);
+        try {
+            encoder.encode(src, target, attrs);
+            return true;
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        } catch (InputFormatException e) {
+            e.printStackTrace();
+        } catch (EncoderException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
 }

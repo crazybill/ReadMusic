@@ -2,18 +2,18 @@ package com.music.read;
 
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXSlider;
-import com.jfoenix.controls.JFXTextField;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -43,8 +43,6 @@ public class PlayControlViewHelper {
     }
 
     public void initBottonView() {
-
-
         VBox bottomView = new VBox();
 
         playSlider = new JFXSlider(0.3, 1, 1);
@@ -60,6 +58,19 @@ public class PlayControlViewHelper {
             }
         });
 
+
+        StackPane stackPane = new StackPane();
+
+        stackPane.getChildren().addAll(getFrame1(),getFrame2());
+
+        bottomView.getChildren().addAll(playSlider, stackPane);
+
+        homeView.borderPane.setBottom(bottomView);
+
+    }
+
+
+    private Node getFrame1() {
 
         bottomContentView = new HBox();
         bottomContentView.setAlignment(Pos.CENTER_LEFT);
@@ -91,11 +102,19 @@ public class PlayControlViewHelper {
 
         VBox.setMargin(musicSinger, new Insets(5, 0, 0, 0));
 
+        bottomContentView.getChildren().addAll(musicImageView, vBox1);
+
+        return bottomContentView;
+    }
+
+
+    private Node getFrame2() {
 
         VBox vBox2 = new VBox();
         vBox2.setAlignment(Pos.CENTER);
 
         HBox hBox1 = new HBox();
+        hBox1.setAlignment(Pos.CENTER);
         JFXButton lastBtn = new JFXButton();
         lastBtn.setRipplerFill(Color.GREEN);
         lastBtn.setFocusTraversable(false);
@@ -143,16 +162,10 @@ public class PlayControlViewHelper {
 
         vBox2.getChildren().addAll(playTimeLabel, hBox1);
 
-        VBox.setVgrow(vBox2, Priority.ALWAYS);
-
-        bottomContentView.getChildren().addAll(musicImageView, vBox1, vBox2);
-
-        bottomView.getChildren().addAll(playSlider, bottomContentView);
-
-
-        homeView.borderPane.setBottom(bottomView);
+        return vBox2;
 
     }
+
 
     private String totalTime = "";
 

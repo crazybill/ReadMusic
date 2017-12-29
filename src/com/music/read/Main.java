@@ -25,7 +25,7 @@ public class Main extends Application {
         launch(args);
     }
 
-    public void start(final Stage primaryStage) throws Exception {
+    public void start(final Stage primaryStage) {
         enableTray(primaryStage);
         homeView = new HomeView(primaryStage);
         homeView.init();
